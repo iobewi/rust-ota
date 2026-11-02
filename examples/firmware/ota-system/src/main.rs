@@ -273,9 +273,11 @@ fn main() -> ! {
 }
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    // Independent of the logger: works whatever state it is in.
+    // Arm before diagnostics: even a blocked console must not prevent recovery.
+    // No confirmation/rejection or metadata write occurs here. PendingVerify
+    // therefore remains pending and the next boot rolls it back.
+    iobewi_esp_watchdog::arm_ms(example_firmware_ota_system::PANIC_RESET_MS);
     iobewi_esp_console::panic_print(info);
-    // If startup/confirmation failed before disarm, hardware expiry still resets.
     loop {
         core::hint::spin_loop();
     }
