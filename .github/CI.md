@@ -76,4 +76,20 @@ Require the single check `CI` (the gate). Do not require the individual job name
 
 ## Measurements
 
-See the pull request description (before/after, cold and warm caches).
+Full push to `main` (all families, Xtensa pinned and latest), GitHub-hosted `ubuntu-latest`:
+
+| | Old workflow (23 jobs) | New, cold caches (5 jobs) | New, warm caches |
+|---|---|---|---|
+| Wall clock | 15m48s | 8m41s | 4m52s |
+| Runner time | about 37.5 min | about 21.5 min | about 13.8 min |
+| Longest job | 12m46s (S3 pinned) | 8m33s (Xtensa pinned) | 4m41s (Xtensa pinned) |
+
+Pull request (new workflow, pinned only, caches from `main` not yet available): about 5m40s wall clock. Per job,
+cold then warm: Host 2m33s / 1m56s, RISC-V 3m31s / 2m54s, Xtensa latest 6m45s / 4m07s.
+The old critical path was serial (discover, format, host matrix, then the MCU jobs); the three families now start together.
+
+Each environment cache is about 700 MB compressed (RISC-V, each Xtensa variant) and 178 MB (host), about 2.3 GB in
+all against the repository's 10 GB limit. Caches are written only outside pull requests.
+
+Failure behaviour was exercised on this branch: a failing Xtensa job produced a failing `CI` gate, and a cancelled
+run produced a gate that ran and concluded `failure`. `test_ci_gate.py` checks all 125 result combinations.
