@@ -5,7 +5,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, ci/simplify]  # TEMPORARY: ci/simplify, removed before review
   workflow_dispatch:
     inputs:
       cache:
