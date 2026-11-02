@@ -13,7 +13,7 @@ use iobewi_esp_tls::EspTlsListener;
 use iobewi_esp_wifi::WifiManager;
 use iobewi_firmware_auth::{AuthProfile, MAX_ENVELOPE};
 use iobewi_firmware_image::Digest as ImageDigest;
-use iobewi_firmware_image::esp::{self, Verify};
+use iobewi_firmware_image::esp;
 use iobewi_firmware_slots::Slot;
 use iobewi_firmware_update::{
     metadata::{MetadataStore, SessionParams},
@@ -370,42 +370,83 @@ impl<S: MetadataStore> Handler<'_, S> {
         let Ok(proof) = service.admit(presented, &params) else {
             return false;
         };
+        let mut buffer = [0u8; 2048];
+        // Buffer just the fixed header, using the same body reader for the rest
+        // of the upload. A malformed or interrupted prefix never erases a proof.
+        let mut header = [0u8; 24];
+        if params.total < header.len() as u32 {
+            log::warn!(
+                "ota: early rejection: truncated header; fallback untouched (not revalidated)"
+            );
+            return false;
+        }
+        let mut reader = request.body_connection.body().reader();
+        let mut received = 0;
+        while received < header.len() {
+            match reader.read(&mut header[received..]).await {
+                Ok(0) | Err(_) => {
+                    log::warn!("ota: interrupted header; fallback untouched (not revalidated)");
+                    return false;
+                }
+                Ok(n) => received += n,
+            }
+        }
+        if let Err(error) = example_firmware_ota_system::validate_upload_header(
+            &header,
+            &iobewi_esp_boot::MEMORY_MAP,
+        ) {
+            log::warn!(
+                "ota: early header rejection {error:?}; fallback untouched (not revalidated)"
+            );
+            return false;
+        }
         let Ok(digest) = service.begin(self.state.store, &params, &proof).await else {
+            log::warn!("ota: begin refused; fallback untouched (not revalidated)");
             return false;
         };
         let Ok(mut session) = ArtifactWriteSession::begin(permit, params.total.into(), digest)
         else {
             return false;
         };
-        // The slot's old boot proof goes before the first byte of its image changes: from here on a
-        // verified-boot bootloader refuses this slot until the new image has its own proof.
+        // From the first erase attempt onward, conservatively report no assured
+        // fallback, including an interrupted/failed proof invalidation.
+        log::warn!(
+            "ota: overwriting {target}; fallback unavailable until image and proof verification"
+        );
         if !boot_proof::invalidate(self.state.flash, images[slot_index], proof_sector).await {
+            log::warn!("ota: proof invalidation failed; fallback unavailable/unknown");
             return false;
         }
         let partition = session.partition();
+        if !session.append(self.state.flash, &header).await {
+            log::warn!("ota: header write failed; fallback unavailable");
+            return false;
+        }
         log::info!(
             "ota: writing {} ({} bytes) to {}",
             params.deployment_id,
             params.total,
             target
         );
-        let mut buffer = [0u8; 2048];
-        let mut remaining = params.total as usize;
-        {
-            let mut reader = request.body_connection.body().reader();
-            while remaining > 0 {
-                let limit = remaining.min(buffer.len());
-                let Ok(n) = reader.read(&mut buffer[..limit]).await else {
-                    return false;
-                };
-                if n == 0 || !session.append(self.state.flash, &buffer[..n]).await {
-                    return false;
-                }
-                remaining -= n;
+        let mut remaining = params.total as usize - header.len();
+        while remaining > 0 {
+            let limit = remaining.min(buffer.len());
+            let Ok(n) = reader.read(&mut buffer[..limit]).await else {
+                log::warn!("ota: body interrupted; fallback unavailable");
+                return false;
+            };
+            if n == 0 || !session.append(self.state.flash, &buffer[..n]).await {
+                log::warn!("ota: body incomplete/write failed; fallback unavailable");
+                return false;
             }
+            remaining -= n;
         }
-        let Ok(committed) = session.finish(self.state.flash).await else {
-            return false;
+        let committed = match session.finish(self.state.flash).await {
+            Ok(committed) => committed,
+            Err(error) => {
+                log::warn!("ota: stream finish rejected {error:?}; fallback unavailable");
+                return false;
+            }
         };
         // Verify actual flash bytes, not only the stream's hash; bound the image
         // validator to the received artifact so stale trailing bytes cannot help.
@@ -419,26 +460,22 @@ impl<S: MetadataStore> Handler<'_, S> {
                     .read(partition.offset + offset, &mut buffer[..n])
                     .is_err()
                 {
+                    log::warn!("ota: flash read failed; fallback unavailable");
                     return false;
                 }
                 hash.update(&buffer[..n]);
                 offset += n as u32;
             }
             let actual: [u8; 32] = hash.finalize().into();
-            if actual != committed.digest.0
-                || esp::validate(
-                    &mut ImageReader(&mut flash),
-                    partition.offset,
-                    params.total,
-                    &iobewi_esp_boot::MEMORY_MAP,
-                    Verify::Full,
-                )
-                // The boot stage demands that the signed length is the canonical length of the
-                // image; refuse here an image the bootloader would refuse after activation.
-                .map_or(true, |image| {
-                    image.canonical_size(partition.offset) != Some(params.total)
-                })
-            {
+            if let Err(error) = example_firmware_ota_system::validate_readback(
+                &mut ImageReader(&mut flash),
+                partition.offset,
+                params.total,
+                &iobewi_esp_boot::MEMORY_MAP,
+                &actual,
+                &committed.digest.0,
+            ) {
+                log::warn!("ota: readback rejected {error:?}; fallback unavailable");
                 return false;
             }
         }
@@ -453,11 +490,12 @@ impl<S: MetadataStore> Handler<'_, S> {
         )
         .await
         {
+            log::warn!("ota: new boot proof rejected; fallback unavailable");
             return false;
         }
         // Physical lock released before ConfigSpace. Reservation still held.
         log::info!(
-            "ota: flash digest and image verified; publishing {}",
+            "ota: flash digest, image and profile boot proof verified; publishing {}",
             params.deployment_id
         );
         service

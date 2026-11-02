@@ -140,6 +140,23 @@ fn read_exact(r: &mut impl Read, offset: u32, buf: &mut [u8]) -> Result<(), Imag
     r.read(offset, buf).map_err(|()| ImageError::Read)
 }
 
+/// Checks the fixed ESP image header before a streaming upload changes flash.
+/// This does not validate segment contents, entry point, checksum or canonical length.
+pub fn validate_header(header: &[u8; 24], map: &MemoryMap) -> Result<(), ImageError> {
+    if header[0] != MAGIC {
+        return Err(ImageError::BadMagic(header[0]));
+    }
+    let count = header[1];
+    if count == 0 || usize::from(count) > MAX_SEGMENTS {
+        return Err(ImageError::BadSegmentCount(count));
+    }
+    let chip_id = u16::from_le_bytes([header[12], header[13]]);
+    if chip_id != map.chip_id {
+        return Err(ImageError::BadChip(chip_id));
+    }
+    Ok(())
+}
+
 /// Validates the image at `part_offset` (a partition of `part_size` bytes).
 pub fn validate(
     reader: &mut impl Read,
@@ -154,18 +171,9 @@ pub fn validate(
 
     let mut header = [0u8; HEADER_LEN as usize];
     read_exact(reader, part_offset, &mut header)?;
-    if header[0] != MAGIC {
-        return Err(ImageError::BadMagic(header[0]));
-    }
+    validate_header(&header, map)?;
     let count = header[1];
-    if count == 0 || usize::from(count) > MAX_SEGMENTS {
-        return Err(ImageError::BadSegmentCount(count));
-    }
     let entry = u32::from_le_bytes([header[4], header[5], header[6], header[7]]);
-    let chip_id = u16::from_le_bytes([header[12], header[13]]);
-    if chip_id != map.chip_id {
-        return Err(ImageError::BadChip(chip_id));
-    }
     let hash_appended = header[23] == 1;
 
     let mut segments = [Segment::default(); MAX_SEGMENTS];

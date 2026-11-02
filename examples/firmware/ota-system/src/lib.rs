@@ -209,3 +209,49 @@ mod tests {
         ));
     }
 }
+
+/// Why the image read back from flash cannot be published. Each reason has a
+/// distinct operator diagnostic; no boot proof is published after any refusal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReadbackRefusal {
+    Digest,
+    Structure(iobewi_firmware_image::esp::ImageError),
+    CanonicalLength,
+}
+
+pub fn validate_readback(
+    reader: &mut impl iobewi_firmware_image::esp::Read,
+    offset: u32,
+    size: u32,
+    map: &iobewi_firmware_image::esp::MemoryMap,
+    actual: &[u8; 32],
+    expected: &[u8; 32],
+) -> Result<(), ReadbackRefusal> {
+    use iobewi_firmware_image::esp::{self, Verify};
+    if actual != expected {
+        return Err(ReadbackRefusal::Digest);
+    }
+    let image = esp::validate(reader, offset, size, map, Verify::Full)
+        .map_err(ReadbackRefusal::Structure)?;
+    if image.canonical_size(offset) != Some(size) {
+        return Err(ReadbackRefusal::CanonicalLength);
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod upload_tests;
+
+/// Fixed-header checks which are knowable before invalidating the old proof.
+/// Full verification requires an appended hash, independently of segment bytes.
+pub fn validate_upload_header(
+    header: &[u8; 24],
+    map: &iobewi_firmware_image::esp::MemoryMap,
+) -> Result<(), iobewi_firmware_image::esp::ImageError> {
+    use iobewi_firmware_image::esp::{self, ImageError};
+    esp::validate_header(header, map)?;
+    if header[23] != 1 {
+        return Err(ImageError::HashMissing);
+    }
+    Ok(())
+}
