@@ -209,3 +209,35 @@ mod tests {
         ));
     }
 }
+
+/// Why the image read back from flash cannot be published. Each reason has a
+/// distinct operator diagnostic; no boot proof is published after any refusal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReadbackRefusal {
+    Digest,
+    Structure(iobewi_firmware_image::esp::ImageError),
+    CanonicalLength,
+}
+
+pub fn validate_readback(
+    reader: &mut impl iobewi_firmware_image::esp::Read,
+    offset: u32,
+    size: u32,
+    map: &iobewi_firmware_image::esp::MemoryMap,
+    actual: &[u8; 32],
+    expected: &[u8; 32],
+) -> Result<(), ReadbackRefusal> {
+    use iobewi_firmware_image::esp::{self, Verify};
+    if actual != expected {
+        return Err(ReadbackRefusal::Digest);
+    }
+    let image = esp::validate(reader, offset, size, map, Verify::Full)
+        .map_err(ReadbackRefusal::Structure)?;
+    if image.canonical_size(offset) != Some(size) {
+        return Err(ReadbackRefusal::CanonicalLength);
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod upload_tests;
