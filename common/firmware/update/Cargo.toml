@@ -41,5 +41,5 @@ embassy-time = { version = "0.5.0", features = ["std", "generic-queue-8"] }
 
 [dependencies.iobewi-config-space]
 git = "https://github.com/iobewi/rust-mcu-libs"
-rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28"
+rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc"
 optional = true

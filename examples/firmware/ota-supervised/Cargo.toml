@@ -71,10 +71,10 @@ esp32s3 = [
 ]
 
 [dependencies]
-iobewi-log = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
-iobewi-esp-console = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
-iobewi-config-space = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
-iobewi-esp-config-space = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
+iobewi-log = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-esp-console = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-config-space = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-esp-config-space = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
 esp-hal = { version = "~1.2", default-features = false, features = ["rt", "unstable"], optional = true }
 esp-rtos = { version = "~0.4", default-features = false, features = ["embassy", "esp-alloc", "esp-radio"], optional = true }
 esp-alloc = { version = "~0.11", default-features = false, features = ["global-allocator", "compat"], optional = true }
@@ -83,19 +83,19 @@ embassy-executor = { version = "0.10.0", default-features = false, optional = tr
 static_cell = { version = "2.1", optional = true }
 
 iobewi-esp-firmware-a = { path = "../../../arch/esp32/firmware/a", features = ["runtime"], optional = true }
-iobewi-esp-flash = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
-iobewi-esp-watchdog = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
+iobewi-esp-flash = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-esp-watchdog = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
 iobewi-firmware-update = { path = "../../../common/firmware/update", features = ["runtime", "config-space"] }
 embassy-time = { version = "0.5.0", optional = true }
 log = { version = "0.4", optional = true }
 
-iobewi-esp-wifi = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
-iobewi-wifi-manager = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
-iobewi-esp-tls = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", default-features = false, optional = true }
-iobewi-crypto-mbedtls = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
-iobewi-http-server = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
+iobewi-esp-wifi = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-wifi-manager = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-esp-tls = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", default-features = false, optional = true }
+iobewi-crypto-mbedtls = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-http-server = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
 iobewi-esp-firmware-storage = { path = "../../../arch/esp32/firmware/storage", optional = true }
-iobewi-firmware-slots = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
+iobewi-firmware-slots = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
 iobewi-firmware-image = { path = "../../../common/firmware/image" }
 iobewi-firmware-auth = { path = "../../../common/firmware/auth" }
 iobewi-firmware-bootauth = { path = "../../../common/firmware/bootauth", optional = true }
@@ -108,6 +108,6 @@ sha2 = { version = "0.10.9", default-features = false, optional = true }
 example-firmware-ota-system = { path = "../ota-system" }
 iobewi-esp-firmware-supervisor = { path = "../../../arch/esp32/firmware/supervisor", optional = true }
 iobewi-workload-native = { path = "../../../common/firmware/component/native", optional = true }
-iobewi-firmware-layout = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", optional = true }
+iobewi-firmware-layout = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
 
 iobewi-workload-image = { path = "../../../common/firmware/component/image" }

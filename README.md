@@ -35,8 +35,9 @@ boot or OTA metadata was modified (see [Provenance](#provenance)).
 ## Dependencies on rust-mcu-libs
 
 The generic libraries (flash, TLS, HTTP, Wi-Fi, configuration, logging, watchdog, console) stay in
-`iobewi/rust-mcu-libs` and are **git dependencies pinned by `rev`** in the manifests of this workspace (the first
-migration pins `59f3b83985caf5b1f617da00dd3dfaa6bd988f28`). Two crates of the OTA family,
+`iobewi/rust-mcu-libs` and are **git dependencies pinned by `rev`** in the manifests of this workspace (pinned at
+`79ce788a6bda7b1e31211aedce8e05b97ebd37cc`, the `main` of rust-mcu-libs after the OTA sub-system left it; the first
+migration used its parent `59f3b83985caf5b1f617da00dd3dfaa6bd988f28`). Two crates of the OTA family,
 `iobewi-firmware-layout` and `iobewi-firmware-slots`, **also stay in rust-mcu-libs**: its generic
 `iobewi-esp-config-space` depends on `iobewi-firmware-layout` (which depends on `iobewi-firmware-slots`), and
 moving them would create a dependency cycle between the two repositories. They are consumed from there like the
