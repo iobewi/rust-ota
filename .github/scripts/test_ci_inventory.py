@@ -27,6 +27,8 @@ for crate in ("example-firmware-ota-supervised", "example-firmware-ota-system", 
     need(host, "cargo test", f"-p {crate}", label=f"test {crate}")
     need(host, "cargo clippy", f"-p {crate}", "-D warnings", label=f"clippy {crate}")
 need(host, "cargo fmt", "--check")
+need(host, "check_picoserve_patch.py")
+need(host, "cargo test", "-p example-firmware-ota-system", "--release", "maintenance_http")
 need(host, "verify-p256,host-sign", "-p iobewi-firmware-auth")                    # ECDSA P-256
 need(host, "-p iobewi-firmware-auth", "cargo test")                                # unsigned
 need(host, "host-sign,soft-sha256", "-p iobewi-firmware-bootauth")                 # software SHA-256

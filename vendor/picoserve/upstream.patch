@@ -1,0 +1,32 @@
+--- a/src/request.rs
++++ b/src/request.rs
+@@ -804,0 +805,2 @@
++    /// Content-Length is invalid or the request-end offset cannot be represented.
++    InvalidContentLength,
+@@ -995,4 +997,11 @@
+-        let content_length = Headers(headers.as_ref())
+-            .get("content-length")
+-            .and_then(|value| value.as_str().ok()?.parse::<usize>().ok())
+-            .unwrap_or(0);
++        let content_length = match Headers(headers.as_ref()).get("content-length") {
++            None => 0,
++            Some(value) => {
++                let text = value.as_str().map_err(|_| ReadError::InvalidContentLength)?;
++                if text.is_empty() || !text.bytes().all(|byte| byte.is_ascii_digit()) {
++                    return Err(ReadError::InvalidContentLength);
++                }
++                text.parse::<usize>()
++                    .map_err(|_| ReadError::InvalidContentLength)?
++            }
++        };
+@@ -1002,0 +1012,3 @@
++        let request_end = parts_length
++            .checked_add(content_length)
++            .ok_or(ReadError::InvalidContentLength)?;
+@@ -1059 +1071 @@
+-        self.read_position += content_length;
++        self.read_position = request_end;
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -485,0 +486 @@
++                        request::ReadError::InvalidContentLength => "Invalid Content-Length",
