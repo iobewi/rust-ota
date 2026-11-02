@@ -49,10 +49,10 @@ dependency together (a single revision must be used, otherwise the same crate wo
 
 ## Continuous integration
 
-`.github/workflows/firmware-ota.yml` runs the host tests and Clippy of every crate, the ESP32-S3 and ESP32-C3
+`.github/workflows/ci.yml` runs the host tests and Clippy of every crate, the ESP32-S3 and ESP32-C3
 builds (S3 on the pinned and the latest Xtensa toolchain), the console matrix, the signed profiles, the
-verified-boot second-stage size gates, the flash geometry tool and its self-tests. Per-crate CI configuration is
-the `ci.json` next to each `Cargo.toml` (see [`.github/CI.md`](.github/CI.md)). `Cargo.lock` is not tracked.
+verified-boot second-stage size gates, the flash geometry tool and its self-tests. The CI is one workflow with three parallel
+families, Host, RISC-V (ESP32-C3) and Xtensa (ESP32-S3), and a fail-closed gate (see [`.github/CI.md`](.github/CI.md)). `Cargo.lock` is not tracked.
 
 ## Follow-up issues
 

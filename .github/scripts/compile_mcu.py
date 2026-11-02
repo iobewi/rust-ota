@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Execute declarative MCU profiles, including actual boot image size gates."""
+"""Compile the crates validated on an ESP32 chip, including the actual boot image size gates.
+
+The list of crates is explicit (PLAN): a crate is a library to check, a firmware whose binaries are linked in release, or
+the second stage, which is also converted to an image and checked against the flash limits."""
 import argparse
 import json
 import os
@@ -36,19 +39,40 @@ def check_boot_image(chip, image, elf=None, profile="unsigned"):
         raise ValueError("; ".join(errors))
     return size
 
+# (package, kind, features, chips). kind: "check" = `cargo check --lib`; "link" = release build of the binaries (an actual
+# link, which a check would not exercise); "bootloader" = second stage built with the bootloader profile, converted to an
+# image and gated. The chip is always added to the features. Listed in the order they are built: later stages of
+# ci_mcu.py use the ELF files built here.
+BOTH = ("esp32c3", "esp32s3")
+PLAN = [
+    ("example-firmware-ota-supervised", "link", "", ("esp32s3",)),
+    ("example-firmware-ota-system", "link", "", BOTH),
+    ("example-supervised-component", "link", "", ("esp32s3",)),
+    ("iobewi-esp-boot", "check", "rom-verify", BOTH),
+    ("iobewi-esp-bootloader", "bootloader", "", BOTH),
+    ("iobewi-esp-firmware-a", "check", "runtime", BOTH),
+    ("iobewi-esp-firmware-storage", "check", "", BOTH),
+    ("iobewi-esp-firmware-supervisor", "check", "", BOTH),
+]
+CHIPS = {
+    "esp32c3": ("nightly", "riscv32imc-unknown-none-elf"),
+    "esp32s3": ("esp", "xtensa-esp32s3-none-elf"),
+}
+
+def plan_for(chip):
+    return [{"package": p, "kind": k, "features": f} for p, k, f, chips in PLAN if chip in chips]
+
 def compile_selected(packages, chip):
-    compiler, target = {
-        "esp32c3": ("nightly", "riscv32imc-unknown-none-elf"),
-        "esp32s3": ("esp", "xtensa-esp32s3-none-elf"),
-    }[chip]
-    if any(p["profile"] == "esp32-bootloader" for p in packages):
+    compiler, target = CHIPS[chip]
+    boot_items = [p for p in packages if p["kind"] == "bootloader"]
+    if boot_items and not os.environ.get("CI_ESPTOOL_READY"):
         subprocess.run([sys.executable, "-m", "pip", "install", "esptool==5.5.0"], check=True)
     for item in packages:
-        boot = item["profile"] == "esp32-bootloader"
-        linked = boot or item["profile"] in ("esp32-linked-bins", "host-esp32-linked-bins", "host-esp32s3-linked-bins")
-        selected_features = ",".join(f for f in (chip,item.get("features", "")) if f)
+        boot = item["kind"] == "bootloader"
+        linked = boot or item["kind"] == "link"
+        selected_features = ",".join(f for f in (chip, item.get("features", "")) if f)
         cmd = ["cargo", "+"+compiler, "build" if linked else "check", "-Z", "build-std=core,alloc",
-               "--target", target, "-p", item["package"], "--features", selected_features, "--"+item["targets"]]
+               "--target", target, "-p", item["package"], "--features", selected_features, "--bins" if linked else "--lib"]
         if boot:
             cmd += ["--profile", "bootloader"]
         elif linked:
@@ -80,6 +104,6 @@ def compile_selected(packages, chip):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chip", required=True, choices=("esp32c3", "esp32s3"))
+    parser.add_argument("--chip", required=True, choices=sorted(CHIPS))
     args = parser.parse_args()
-    compile_selected(json.loads(os.environ["PACKAGES"]), args.chip)
+    compile_selected(plan_for(args.chip), args.chip)

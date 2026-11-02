@@ -41,7 +41,7 @@ pas le chargement ni les exceptions du deuxième cœur physique. #61 reste ouver
   Le doctest historique de macro SDK reste ignoré (pas un scénario matériel).
 - Service OTA commun avec runtime/config-space : 70 tests + 2 fixtures PASS.
 - Clippy all-targets -D warnings, rustfmt, diff check PASS.
-- Profil/discovery : 50 crates, tous avec ci.json ; les deux packages natifs
+- Validation CI : workspace complet (voir `.github/CI.md`) ; les deux packages natifs
   ont host/S3 et un vrai lien release, sans inventer un chemin natif C3.
 - S3 esp 1.98.1.0, GCC 16.2.0, LLVM étendu 21.1.3 : A+B lié, région RAM
   réservée/assertions PASS. A seul également lié sur S3.
