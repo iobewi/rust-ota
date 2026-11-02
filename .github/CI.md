@@ -106,6 +106,12 @@ allocator, runtime and linker symbols that a cargo check would miss.
 
 ## Validation domains: general CI and firmware/OTA CI
 
+> **In `iobewi/rust-ota`** every workspace crate belongs to the firmware/OTA domain and the only workflow is
+> `firmware-ota.yml`. The *general* domain and `rust-mcu.yml` described below belong to
+> `iobewi/rust-mcu-libs`, whose crates are git dependencies here, pinned by `rev`, and are not validated by this CI.
+> `test_discover_ci.py` is adapted to this single domain. The text of this section is kept as it was written
+> when both domains shared one repository.
+
 Two workflows share one Cargo workspace, one `ci.json` vocabulary and the same scripts:
 
 | Workflow | Final gate (required-check name) | Scope |
