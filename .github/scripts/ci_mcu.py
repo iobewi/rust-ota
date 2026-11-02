@@ -119,7 +119,7 @@ def main():
             # reported only. The wide geometry below is the gate.
             r.run(py("verified_boot.py", "--chip", chip, "--report-only"))
         with r.group("Wide flash geometry (table at 0x10000), second stage and application"):
-            r.run(py("esp_geometry.py", "csv", "examples/firmware/ota-system/partitions-s3-16mb-wide.csv"))
+            r.run(py("esp_geometry.py", "csv", "examples/firmware/ota-system/partitions-s3-16mb-wide.csv"), env=wide)
             r.run(["cargo", f"+{toolchain}", "build", "-Z", "build-std=core,alloc", "--target", target, "--profile", "bootloader",
                    "-p", "iobewi-esp-bootloader", "--features", chip, "--bins"], env=wide)
             r.run([sys.executable, "-m", "esptool", "--chip", chip, "elf2image", "--flash-mode", "dio", "--flash-size", "16MB",
