@@ -61,7 +61,10 @@ def cases(chip):
     out.append(("application ring", APP, [chip, "console-ring"], ["--no-default-features"], None, None))
     out.append(("bootloader/application mismatch refused", BOOTLOADER, [chip, "console-none"],
                 ["--no-default-features"], None, "does not match the primary-* feature"))
-    return out
+    # The connector crate (iobewi-esp-console) is a generic library that stays in iobewi/rust-mcu-libs and is not a
+    # member of this workspace (cargo refuses `-p` with features for it): its own cases run in that repository's CI.
+    # Here only the bootloader and the application cases run.
+    return [case for case in out if case[1] != CONNECTOR]
 
 def main():
     parser = argparse.ArgumentParser()
