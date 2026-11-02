@@ -12,7 +12,6 @@
 //! [`profile`] (the two profiles and their proofs), [`error`].
 
 pub mod error;
-pub mod maintenance;
 pub mod manifest;
 pub mod policy;
 pub mod profile;
@@ -34,3 +33,5 @@ pub use verify::{SignatureVerifier, VerifyError};
 
 #[cfg(test)]
 extern crate std;
+
+pub mod maintenance;
