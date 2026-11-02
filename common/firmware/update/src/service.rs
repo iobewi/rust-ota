@@ -65,7 +65,13 @@ pub(crate) async fn begin<S: MetadataStore>(
     params: &SessionParams,
 ) -> Result<crate::Digest, BeginError> {
     let digest = parse_digest(&params.digest).ok_or(BeginError::BadDigest)?;
-    match load_transaction(store).await.map_err(BeginError::Storage)? {
+    let metadata = crate::metadata::load_metadata(store)
+        .await
+        .map_err(BeginError::Storage)?;
+    if metadata.staged.stage == crate::metadata::Stage::Activating {
+        return Err(BeginError::Conflict);
+    }
+    match crate::metadata::transaction_from_staged(&metadata.staged) {
         None => {}
         Some(record) if can_supersede(Some(&record)) => {
             commit_transaction(store, None)
@@ -87,7 +93,7 @@ pub(crate) async fn publish<S: MetadataStore>(
     let mut metadata = crate::metadata::load_metadata(store)
         .await
         .map_err(PublishError::Storage)?;
-    if !can_supersede(crate::metadata::transaction_from_staged(&metadata.staged).as_ref()) {
+    if metadata.staged.stage == crate::metadata::Stage::Activating {
         return Err(PublishError::Conflict);
     }
     let record = firmware_record(deployment_id, artifact.size, artifact.digest, target);

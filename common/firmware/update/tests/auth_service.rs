@@ -671,3 +671,43 @@ fn publication_fails_closed_on_unreadable_metadata() {
     assert_eq!(*store.0.borrow(), before);
     assert_eq!(store.1.get(), 0);
 }
+
+#[test]
+fn activating_with_an_unprojectable_digest_still_blocks_begin_and_publish() {
+    use iobewi_firmware_update::metadata::{Metadata, Staged};
+    let service = OtaService::new(UnsignedAllowed);
+    let p = params("replacement", IMAGE);
+    let proof = service.admit(None, &p).unwrap();
+    for digest in ["", "invalid", "sha256:bad"] {
+        let metadata = Metadata {
+            staged: Staged {
+                stage: Stage::Activating,
+                slot: "ota_1".into(),
+                digest: digest.into(),
+                deployment_id: "in-flight".into(),
+                size: SIZE,
+            },
+            active_digest: format_digest(&OTHER),
+            active_deployment_id: "confirmed".into(),
+        };
+        let store = Store::default();
+        *store.0.borrow_mut() = Some(metadata.encode().unwrap());
+        let before = store.0.borrow().clone();
+        assert_eq!(
+            ready(service.begin(&store, &p, &proof)),
+            Err(BeginError::Conflict)
+        );
+        assert_eq!(
+            ready(service.publish(
+                &store,
+                "replacement".into(),
+                committed(IMAGE),
+                "ota_0".into(),
+                &proof
+            )),
+            Err(PublishError::Conflict)
+        );
+        assert_eq!(*store.0.borrow(), before);
+        assert_eq!(store.1.get(), 0);
+    }
+}
