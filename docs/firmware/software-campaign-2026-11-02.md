@@ -2,7 +2,7 @@
 
 Point de départ : main `fab250662da2863c99a78b1d6de8e9e4549f5fd4`, PR #10 fusionnée,
 CI [41475570372](https://github.com/iobewi/rust-ota/actions/runs/41475570372) verte.
-Les neuf issues #1–#9 étaient ouvertes. Aucun correctif déjà intégré n'a été refait.
+Les neuf issues #1–#9 étaient ouvertes. #14 est apparue pendant la campagne. Aucun correctif déjà intégré n'a été refait.
 
 Aucun équipement, flash, reset, eFuse ou clé de production utilisé/modifié.
 Aucune PR fusionnée, aucune issue clôturée. Les éléments ci-dessous sont proposés
@@ -35,6 +35,7 @@ courant dans GitHub est l'autorité, jamais le succès d'une tête antérieure.
 | #5 ouverte : deltas matériels absents | #20 : inventaire et protocoles par chemin ; #12 renforce préfixes tronqués ; #13 politique panic | Modèles NOR/BOOT/IAP1/auth déjà présents réutilisés ; protocole exige relectures/restauration exactes | Watchdog réel, rejet, HALT, repli inverse, ECDSA et coupures physiques non exécutés | Maintenir ouverte |
 | #6 ouverte : aucune étude | #22 : RP2350A/B Arm et périmètre proposé Teensy4.0/4.1 RT1062 ; formats/crypto/OTP/budget/adaptateurs | Sources constructeur, distinction P-256/secp256k1/HAB, limites de format et méthode de dimensionnement, conditions de qualification | Aucun adaptateur, build ou qualification ; carte finale à choisir ; standard/Lockable et autres Teensy non équivalents | Étude prête à revue ; clôturable après acceptation/fusion, sans annoncer de support MCU |
 | #7 ouverte : feuille de route périmée | Rapport présent et corps de #7 actualisés, toutes PR et issues filles reliées | Distinctions implémenté / testé hôte / compilé MCU / qualifié matériel conservées | Lots 2 matériel/multi-MCU et 3 intégration incomplets ; travail encore en PR | Maintenir ouverte |
+| #14 créée pendant campagne : réorganisation firmware/ | Périmètre lu : déplacement seul, contenu Rust inchangé, 18 membres, chemins/packaging/preuves à vérifier | Aucun déplacement effectué ; ne fait pas partie des lots A–D initiaux. Revue d'impact : touche les chemins de toutes les PR en cours | Aucun matériel requis ; risque de conflits/chemins actifs périmés si traité avant intégration. Les nouvelles docs devront aussi être déplacées | Maintenir ouverte ; PR de réorganisation seule recommandée après intégration des présentes PR |
 | #15 créée : plancher de sécurité | #18 fournit politique et contrat de persistance | Modèle déterministe, refus identité, version, monotonicité et reprise | Intégration boot/confirmation et backend protégé, récupération intention/promotion et tests matériels absents | Maintenir ouverte |
 | #16 créée : clés/compromission | Contrats et scénarios dans #18 | Réutilise TrustPolicy et tests de révocation existants ; ne recrée pas le keyring | Autorité protégée et persistance de politique dynamique, anti-rejeu, récupération après compromission non intégrés | Maintenir ouverte |
 | #17 créée : maintenance/résilience | #19 + matrice de #18 | Primitive sans allocation ; absence/secret vide/prefixes/extensions/toutes substitutions d'octet refusés ; handler système raccordé | Provisioning/TLS/resource limits, timer supervisé et persistance/coupures restent ouverts ; pas de qualification temporelle globale | Maintenir ouverte |
@@ -78,5 +79,5 @@ Les tests hôte ne prouvent ni l'ABI ROM réelle ni le comportement électrique 
 
 Après chaque fusion autorisée, relire la CI du nouvel ensemble sur main et la
 mergeabilité de la PR suivante. Ne pas confondre ordre de revue et dépendance de
-code. Clôtures alors possibles : #9 et #6 (étude seulement). Les autres issues
+code. Clôtures alors possibles : #9 et #6 (étude seulement). Traiter ensuite #14 dans une PR de réorganisation seule sur la nouvelle base. Les autres issues
 restent ouvertes avec leurs critères non satisfaits explicites.
