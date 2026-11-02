@@ -391,7 +391,10 @@ impl<S: MetadataStore> Handler<'_, S> {
                 Ok(n) => received += n,
             }
         }
-        if let Err(error) = esp::validate_header(&header, &iobewi_esp_boot::MEMORY_MAP) {
+        if let Err(error) = example_firmware_ota_system::validate_upload_header(
+            &header,
+            &iobewi_esp_boot::MEMORY_MAP,
+        ) {
             log::warn!(
                 "ota: early header rejection {error:?}; fallback untouched (not revalidated)"
             );

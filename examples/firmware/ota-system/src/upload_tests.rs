@@ -1,5 +1,5 @@
 use super::*;
-use iobewi_firmware_image::esp::{self, ImageError, MemoryMap, Read};
+use iobewi_firmware_image::esp::{ImageError, MemoryMap, Read};
 use sha2::{Digest as _, Sha256};
 use std::vec::Vec;
 
@@ -46,16 +46,17 @@ impl Read for Bytes {
 fn early_header_refusals_share_the_full_validators_rules() {
     let bytes = image();
     let header: [u8; 24] = bytes[..24].try_into().unwrap();
-    assert_eq!(esp::validate_header(&header, &map()), Ok(()));
+    assert_eq!(validate_upload_header(&header, &map()), Ok(()));
     for (offset, value, expected) in [
         (0, 0, ImageError::BadMagic(0)),
         (1, 0, ImageError::BadSegmentCount(0)),
         (1, 17, ImageError::BadSegmentCount(17)),
         (12, 5, ImageError::BadChip(5)),
+        (23, 0, ImageError::HashMissing),
     ] {
         let mut bad = header;
         bad[offset] = value;
-        assert_eq!(esp::validate_header(&bad, &map()), Err(expected));
+        assert_eq!(validate_upload_header(&bad, &map()), Err(expected));
     }
 }
 #[test]

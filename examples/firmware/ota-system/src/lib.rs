@@ -241,3 +241,17 @@ pub fn validate_readback(
 
 #[cfg(test)]
 mod upload_tests;
+
+/// Fixed-header checks which are knowable before invalidating the old proof.
+/// Full verification requires an appended hash, independently of segment bytes.
+pub fn validate_upload_header(
+    header: &[u8; 24],
+    map: &iobewi_firmware_image::esp::MemoryMap,
+) -> Result<(), iobewi_firmware_image::esp::ImageError> {
+    use iobewi_firmware_image::esp::{self, ImageError};
+    esp::validate_header(header, map)?;
+    if header[23] != 1 {
+        return Err(ImageError::HashMissing);
+    }
+    Ok(())
+}
