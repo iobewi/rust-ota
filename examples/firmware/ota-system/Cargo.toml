@@ -91,6 +91,9 @@ esp32s3 = [
     "iobewi-esp-console/esp32s3",
 ]
 
+[dev-dependencies]
+iobewi-firmware-boot = { path = "../../../common/firmware/boot" }
+
 [dependencies]
 iobewi-log = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
 iobewi-esp-console = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", default-features = false, optional = true }
@@ -126,6 +129,3 @@ embassy-net = { version = "0.9.1", default-features = false, features = ["dhcpv4
 embassy-sync = { version = "0.8.0", optional = true }
 embedded-storage = { version = "0.3.1", optional = true }
 sha2 = { version = "0.10.9", default-features = false, optional = true }
-
-[dev-dependencies]
-iobewi-firmware-boot = { path = "../../../common/firmware/boot" }

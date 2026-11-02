@@ -4,6 +4,29 @@
 #[cfg(test)]
 extern crate std;
 
+/// Fatal-panic recovery deadline. The panic handler arms the hardware watchdog
+/// before printing, in every boot state, then stops. It never mutates boot metadata.
+pub const PANIC_RESET_MS: u64 = 1_000;
+
+#[cfg(test)]
+#[test]
+fn panic_reset_preserves_probation_and_confirmed_boot_semantics() {
+    use iobewi_firmware_boot::{Boot, Entry, plan_boot, state};
+    let confirmed = Entry::new(1, state::VALID).encode();
+    for (candidate_state, expected_slot) in [(state::PENDING_VERIFY, 0), (state::VALID, 1)] {
+        let durable = [confirmed, Entry::new(2, candidate_state).encode()];
+        // A panic only arms a reset; the next boot sees exactly the durable entries.
+        let plan = plan_boot(durable, 2, &mut |_| true);
+        assert!(matches!(plan.boot, Boot::Slot { slot, .. } if slot == expected_slot));
+        assert_eq!(durable[0], confirmed);
+        if candidate_state == state::PENDING_VERIFY {
+            assert!(plan.writes().all(|w| w.entry.state != state::VALID));
+        } else {
+            assert_eq!(plan.writes().count(), 0);
+        }
+    }
+}
+
 pub fn valid_deployment_id(id: &str) -> bool {
     !id.is_empty()
         && id.len() <= 64
@@ -207,28 +230,5 @@ mod tests {
         assert!(valid_deployment_id(
             core::str::from_utf8(&[b'a'; 64]).unwrap()
         ));
-    }
-}
-
-/// Fatal-panic recovery deadline. The panic handler arms the hardware watchdog
-/// before printing, in every boot state, then stops. It never mutates boot metadata.
-pub const PANIC_RESET_MS: u64 = 1_000;
-
-#[cfg(test)]
-#[test]
-fn panic_reset_preserves_probation_and_confirmed_boot_semantics() {
-    use iobewi_firmware_boot::{Boot, Entry, plan_boot, state};
-    let confirmed = Entry::new(1, state::VALID).encode();
-    for (candidate_state, expected_slot) in [(state::PENDING_VERIFY, 0), (state::VALID, 1)] {
-        let durable = [confirmed, Entry::new(2, candidate_state).encode()];
-        // A panic only arms a reset; the next boot sees exactly the durable entries.
-        let plan = plan_boot(durable, 2, &mut |_| true);
-        assert!(matches!(plan.boot, Boot::Slot { slot, .. } if slot == expected_slot));
-        assert_eq!(durable[0], confirmed);
-        if candidate_state == state::PENDING_VERIFY {
-            assert!(plan.writes().all(|w| w.entry.state != state::VALID));
-        } else {
-            assert_eq!(plan.writes().count(), 0);
-        }
     }
 }
