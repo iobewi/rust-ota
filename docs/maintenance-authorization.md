@@ -75,8 +75,9 @@ lifecycle and device criteria. The interruption matrix in
 simulation does not prove power-loss safety. Existing hardware qualifications
 are retained without rerunning them.
 
-An independent parser arithmetic defect found during these tests is tracked in
-[#25](https://github.com/iobewi/rust-ota/issues/25): overflowing `Content-Length`
-can panic in picoserve debug builds before dispatch. This handler correction does
-not fix that dependency defect. The large-length refusal test uses a
-non-overflowing boundary; it is not coverage of the outstanding overflow case.
+The parser arithmetic defect discovered in
+[#25](https://github.com/iobewi/rust-ota/issues/25) is corrected for this workspace
+by a source patch of picoserve 0.20.1. Invalid/non-representable lengths and an
+overflowing request-end offset receive 400/close before handler dispatch.
+See [the patch provenance and removal conditions](../vendor/picoserve/README.rust-ota.md).
+This does not claim a fixed crates.io release or comprehensive HTTP framing audit.

@@ -32,7 +32,7 @@ CRATES = [
     ("iobewi-workload-pack", ""),
 ]
 TOOL_TESTS = ["test_esp_console.py", "test_compile_mcu.py", "test_esp_geometry.py", "test_ci_gate.py", "test_elf_size.py",
-              "test_ci_inventory.py", "check_retired_terms.py"]
+              "test_ci_inventory.py", "check_retired_terms.py", "check_picoserve_patch.py"]
 OFFSET = "ESP_BOOTLOADER_ESP_IDF_CONFIG_PARTITION_TABLE_OFFSET"
 
 
@@ -62,6 +62,9 @@ def main():
     for package, features in CRATES:
         with r.group(f"Tests and Clippy / {package}"):
             test_and_clippy(r, package, features)
+
+    with r.group("HTTP parser overflow regressions, optimized profile"):
+        r.run(["cargo", "test", "-p", "example-firmware-ota-system", "--release", "maintenance_http"])
 
     with r.group("Image authentication, unsigned profile: no asymmetric cryptography is even built"):
         r.run(["cargo", "test", "-p", "iobewi-firmware-auth"])

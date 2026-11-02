@@ -10,7 +10,10 @@ use picoserve::{
     routing::RequestHandlerService,
     time::{Duration, Timer},
 };
-use std::{string::String, vec::Vec};
+use std::{
+    string::{String, ToString},
+    vec::Vec,
+};
 
 struct Runtime;
 struct FrozenTime;
@@ -99,7 +102,10 @@ impl<'data> io::Socket<Runtime> for &mut Socket<'data> {
         Ok(())
     }
 }
-struct Handler<'a>(&'a Cell<usize>);
+struct Handler<'a> {
+    mutations: &'a Cell<usize>,
+    dispatches: &'a Cell<usize>,
+}
 impl RequestHandlerService for Handler<'_> {
     async fn call_request_handler_service<R: Read, W: ResponseWriter<Error = R::Error>>(
         &self,
@@ -108,6 +114,7 @@ impl RequestHandlerService for Handler<'_> {
         mut request: Request<'_, R>,
         writer: W,
     ) -> Result<ResponseSent, W::Error> {
+        self.dispatches.set(self.dispatches.get() + 1);
         let token = request
             .parts
             .headers()
@@ -119,7 +126,7 @@ impl RequestHandlerService for Handler<'_> {
         let mut reader = request.body_connection.body().reader();
         let mut buffer = [0; 64];
         while reader.read(&mut buffer).await? != 0 {}
-        self.0.set(self.0.get() + 1);
+        self.mutations.set(self.mutations.get() + 1);
         (StatusCode::OK, "accepted")
             .write_to(request.body_connection.finalize().await?, writer)
             .await
@@ -129,6 +136,11 @@ impl RequestHandlerService for Handler<'_> {
 // A frozen clock plus one poll makes waiting for the client (or a timeout)
 // a deterministic failure, rather than a test depending on wall-clock speed.
 fn run(bytes: &[u8]) -> (String, usize, usize, bool) {
+    run_observed(bytes, false).0
+}
+
+fn run_observed(bytes: &[u8], persistent: bool) -> ((String, usize, usize, bool), usize) {
+    let dispatches = Cell::new(0);
     let reads = Cell::new(0);
     let mutations = Cell::new(0);
     let closed = Cell::new(false);
@@ -140,10 +152,18 @@ fn run(bytes: &[u8]) -> (String, usize, usize, bool) {
         tx: Vec::new(),
         closed: &closed,
     };
-    let router =
-        picoserve::Router::new().route("/", picoserve::routing::post_service(Handler(&mutations)));
+    let router = picoserve::Router::new().route(
+        "/",
+        picoserve::routing::post_service(Handler {
+            mutations: &mutations,
+            dispatches: &dispatches,
+        }),
+    );
     let mut config = picoserve::Config::const_default().keep_connection_alive();
     configure(&mut config);
+    if persistent {
+        config = config.keep_connection_alive();
+    }
     let mut buffer = [0; 2048];
     {
         let server = picoserve::Server::custom(&router, FrozenTime, &config, &mut buffer);
@@ -160,10 +180,13 @@ fn run(bytes: &[u8]) -> (String, usize, usize, bool) {
         );
     }
     (
-        String::from_utf8(socket.tx).unwrap(),
-        reads.get(),
-        mutations.get(),
-        closed.get(),
+        (
+            String::from_utf8(socket.tx).unwrap(),
+            reads.get(),
+            mutations.get(),
+            closed.get(),
+        ),
+        dispatches.get(),
     )
 }
 
@@ -246,5 +269,90 @@ fn authorized_body_can_exceed_http_buffer() {
     assert!(response.starts_with("HTTP/1.1 200"));
     assert!(reads > 1);
     assert_eq!(mutations, 1);
+    assert!(closed);
+}
+
+#[test]
+fn overflowing_content_length_is_400_before_dispatch() {
+    for length in [usize::MAX.to_string(), (usize::MAX as u128 + 1).to_string()] {
+        let request = std::format!(
+            "POST / HTTP/1.1\r\nAuthorization: secret\r\nContent-Length: {length}\r\n\r\nPOST / HTTP/1.1\r\nAuthorization: secret\r\nContent-Length: 0\r\n\r\n"
+        );
+        let ((response, reads, mutations, closed), dispatches) =
+            run_observed(request.as_bytes(), true);
+        assert!(response.starts_with("HTTP/1.1 400"), "{response}");
+        assert_eq!(response.matches("HTTP/1.1").count(), 1);
+        assert_eq!(reads, 1);
+        assert_eq!(mutations, 0);
+        assert_eq!(dispatches, 0);
+        assert!(closed);
+    }
+}
+
+#[test]
+fn request_end_boundary_is_checked_exactly() {
+    // Decimal width is identical for these adjacent huge lengths.
+    let prefix = std::format!("POST / HTTP/1.1\r\nContent-Length: {}\r\n\r\n", usize::MAX);
+    let limit = usize::MAX - prefix.len();
+    for (length, expected_dispatches) in [(limit - 1, 1), (limit, 1), (limit + 1, 0)] {
+        let request = std::format!("POST / HTTP/1.1\r\nContent-Length: {length}\r\n\r\n");
+        assert_eq!(request.len(), prefix.len());
+        let ((response, reads, mutations, closed), dispatches) =
+            run_observed(request.as_bytes(), true);
+        if expected_dispatches == 0 {
+            assert!(response.starts_with("HTTP/1.1 400"), "{response}");
+        } else {
+            // Representable, but unauthenticated and missing its body: reject
+            // via the immediate timeout, rather than imposing a new size limit.
+            assert!(response.is_empty());
+        }
+        assert_eq!(dispatches, expected_dispatches);
+        assert_eq!(reads, 1);
+        assert_eq!(mutations, 0);
+        assert!(closed);
+    }
+}
+
+#[test]
+fn invalid_lengths_do_not_become_an_empty_authorized_request() {
+    for length in [
+        "",
+        "+0",
+        "-1",
+        "NaN",
+        "1, 1",
+        "99999999999999999999999999999999999999999999",
+    ] {
+        let request = std::format!(
+            "POST / HTTP/1.1\r\nAuthorization: secret\r\nContent-Length: {length}\r\n\r\n"
+        );
+        let ((response, reads, mutations, closed), dispatches) =
+            run_observed(request.as_bytes(), true);
+        assert!(response.starts_with("HTTP/1.1 400"), "{length}: {response}");
+        assert_eq!((reads, mutations, dispatches), (1, 0, 0));
+        assert!(closed);
+    }
+}
+
+#[test]
+fn absent_or_decimal_zero_length_keeps_existing_empty_request_semantics() {
+    for header in ["", "Content-Length: 0\r\n", "Content-Length: 000\r\n"] {
+        let request = std::format!("POST / HTTP/1.1\r\nAuthorization: secret\r\n{header}\r\n");
+        let ((response, reads, mutations, closed), dispatches) =
+            run_observed(request.as_bytes(), false);
+        assert!(response.starts_with("HTTP/1.1 200"), "{response}");
+        assert_eq!((reads, mutations, dispatches), (1, 1, 1));
+        assert!(closed);
+    }
+}
+
+#[test]
+fn non_utf8_length_is_rejected_before_dispatch() {
+    let ((response, reads, mutations, closed), dispatches) = run_observed(
+        b"POST / HTTP/1.1\r\nAuthorization: secret\r\nContent-Length: \xff\r\n\r\n",
+        true,
+    );
+    assert!(response.starts_with("HTTP/1.1 400"), "{response}");
+    assert_eq!((reads, mutations, dispatches), (1, 0, 0));
     assert!(closed);
 }
