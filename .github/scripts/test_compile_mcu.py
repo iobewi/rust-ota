@@ -25,25 +25,26 @@ for chip, offset, current in (("esp32c3", 0x8000, 23008), ("esp32s3", 0x8000, 30
     assert limits["unsigned"] <= limits["hard"]
 print("Per-chip boot budgets passed")
 
-# Host coverage of a firmware must not turn its MCU link gate into cargo check.
+# A firmware's MCU gate is a release link, never a cargo check; a library is a check; the second stage uses its profile.
 from unittest.mock import patch
 import compile_mcu
 for chip in ("esp32c3", "esp32s3"):
     with patch.object(compile_mcu.subprocess, "run") as run:
-        compile_mcu.compile_selected([{
-            "package": "reference-test", "profile": "host-esp32-linked-bins",
-            "features": "", "targets": "bins",
-        }], chip)
+        compile_mcu.compile_selected([{"package": "reference-test", "kind": "link", "features": ""}], chip)
         command = run.call_args.args[0]
         assert "build" in command and "--release" in command and "--bins" in command
         assert "check" not in command
-print("Host/MCU combined profile preserves release link gates")
+    with patch.object(compile_mcu.subprocess, "run") as run:
+        compile_mcu.compile_selected([{"package": "lib-test", "kind": "check", "features": "runtime"}], chip)
+        command = run.call_args.args[0]
+        assert "check" in command and "--lib" in command and "--release" not in command
+        assert command[command.index("--features") + 1] == f"{chip},runtime"
+print("Link / check kinds preserved")
 
-with patch.object(compile_mcu.subprocess, "run") as run:
-    compile_mcu.compile_selected([{
-        "package": "native-test", "profile": "host-esp32s3-linked-bins",
-        "features": "", "targets": "bins",
-    }], "esp32s3")
-    command = run.call_args.args[0]
-    assert "build" in command and "--release" in command and "--bins" in command
-print("Native S3 profile preserves release link gate")
+# The static plan: every crate is built for the chips that support it, the second stage for both.
+for chip in ("esp32c3", "esp32s3"):
+    kinds = {item["package"]: item["kind"] for item in compile_mcu.plan_for(chip)}
+    assert kinds["iobewi-esp-bootloader"] == "bootloader" and kinds["example-firmware-ota-system"] == "link"
+assert "example-firmware-ota-supervised" not in {i["package"] for i in compile_mcu.plan_for("esp32c3")}
+assert "example-firmware-ota-supervised" in {i["package"] for i in compile_mcu.plan_for("esp32s3")}
+print("Per-chip plan passed")

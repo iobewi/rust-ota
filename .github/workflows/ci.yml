@@ -1,0 +1,113 @@
+name: CI
+
+# Three architecture families, in parallel, then a fail-closed gate. Every event runs all three; the only difference
+# is the Xtensa toolchain: pinned always, latest too outside pull requests (push to main, nightly, manual).
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      cache:
+        description: Use the Cargo caches (turn off to measure a cold run)
+        type: boolean
+        default: true
+  schedule:
+    - cron: '47 3 * * *'
+
+permissions:
+  contents: read
+
+# A new push cancels the previous run of the same pull request only: a nightly or push run is never cancelled by
+# another event (the group carries the event name outside pull requests).
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || format('{0}-{1}', github.event_name, github.sha) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  host:
+    name: Host (tests, Clippy, tools)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        if: github.event.inputs.cache != 'false'
+        with:
+          shared-key: host
+          save-if: ${{ github.event_name != 'pull_request' }}
+      - run: python3 .github/scripts/ci_host.py
+
+  riscv:
+    name: RISC-V (ESP32-C3 compile and link)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: riscv32imc-unknown-none-elf
+          components: rust-src
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: riscv32imc-unknown-none-elf
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        if: github.event.inputs.cache != 'false'
+        with:
+          shared-key: riscv
+          save-if: ${{ github.event_name != 'pull_request' }}
+      - run: python3 .github/scripts/ci_mcu.py --chip esp32c3
+
+  xtensa:
+    name: Xtensa (ESP32-S3 compile and link) / ${{ matrix.variant }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(github.event_name == 'pull_request' && '{"include":[{"variant":"pinned","version":"1.98.1.0"}]}' || '{"include":[{"variant":"pinned","version":"1.98.1.0"},{"variant":"latest","version":"latest"}]}') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: esp-rs/xtensa-toolchain@v1.7.0
+        with:
+          buildtargets: esp32s3
+          default: false
+          override: false
+          version: ${{ matrix.version }}
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        if: github.event.inputs.cache != 'false'
+        with:
+          shared-key: xtensa-${{ matrix.variant }}
+          save-if: ${{ github.event_name != 'pull_request' }}
+      - run: python3 .github/scripts/ci_mcu.py --chip esp32s3
+
+  gate:
+    name: CI
+    runs-on: ubuntu-latest
+    needs: [host, riscv, xtensa]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Every family succeeded
+        env:
+          HOST: ${{ needs.host.result }}
+          RISCV: ${{ needs.riscv.result }}
+          XTENSA: ${{ needs.xtensa.result }}
+        run: python3 .github/scripts/ci_gate.py
