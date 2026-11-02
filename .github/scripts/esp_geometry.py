@@ -39,7 +39,7 @@ LIMITS = {
     ("esp32s3", 0x10000): {"hard": 0x10000 - SECTOR, "unsigned": 32768, "verified": 40960},
 }
 
-# RAM the second stage is linked into (see arch/esp32/firmware/boot/linker): the instruction
+# RAM the second stage is linked into (see arch/esp32/boot/linker): the instruction
 # window ("iram") and the data window ("dram") must not share physical bytes, and both stay inside
 # the boot window applications are never loaded into. "alias" maps an instruction-bus address to
 # the data-bus address of the same SRAM byte.

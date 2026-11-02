@@ -105,21 +105,21 @@ def main():
         with r.group("Verified boot second stage, link and size gate"):
             r.run(py("verified_boot.py", "--chip", chip))
         with r.group("Verified boot diagnostic build (diag-panic), link and size gate"):
-            # Off by default, never in the nominal image; it must keep building and fitting (docs/firmware/verified-boot-p3-diagnosis.md).
+            # Off by default, never in the nominal image; it must keep building and fitting (docs/verified-boot-p3-diagnosis.md).
             r.run(py("verified_boot.py", "--chip", chip, "--diag"))
         with r.group("Verified boot, other SHA-256 backends (esp-hal, software), link and size gate"):
             # Selectable at build time, the ROM's is the default and the one qualified on hardware; these two must
-            # keep building and fitting (docs/firmware/verified-boot-sha.md).
+            # keep building and fitting (docs/verified-boot-sha.md).
             r.run(py("verified_boot.py", "--chip", chip, "--sha", "hal"))
             r.run(py("verified_boot.py", "--chip", chip, "--sha", "soft"))
     else:
         wide = {OFFSET: "0x10000"}
         with r.group("Verified boot second stage, historical geometry (report only)"):
-            # With the historical table at 0x8000 the S3 verified second stage does not fit (docs/firmware/verified-boot.md):
+            # With the historical table at 0x8000 the S3 verified second stage does not fit (docs/verified-boot.md):
             # reported only. The wide geometry below is the gate.
             r.run(py("verified_boot.py", "--chip", chip, "--report-only"))
         with r.group("Wide flash geometry (table at 0x10000), second stage and application"):
-            r.run(py("esp_geometry.py", "csv", "examples/firmware/ota-system/partitions-s3-16mb-wide.csv"), env=wide)
+            r.run(py("esp_geometry.py", "csv", "examples/ota-system/partitions-s3-16mb-wide.csv"), env=wide)
             r.run(["cargo", f"+{toolchain}", "build", "-Z", "build-std=core,alloc", "--target", target, "--profile", "bootloader",
                    "-p", "iobewi-esp-bootloader", "--features", chip, "--bins"], env=wide)
             r.run([sys.executable, "-m", "esptool", "--chip", chip, "elf2image", "--flash-mode", "dio", "--flash-size", "16MB",

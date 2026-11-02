@@ -1,23 +1,23 @@
 [workspace]
 members = [
-  "examples/firmware/ota-supervised/component",
-  "examples/firmware/ota-supervised",
-  "common/firmware/component/abi",
-  "common/firmware/component/image",
-  "common/firmware/component/native",
-  "common/firmware/component/sdk",
+  "examples/ota-supervised/component",
+  "examples/ota-supervised",
+  "common/component/abi",
+  "common/component/image",
+  "common/component/native",
+  "common/component/sdk",
   "tools/component-pack",
-  "examples/firmware/ota-system",
-  "arch/esp32/firmware/boot",
-  "examples/firmware/bootloader",
-  "arch/esp32/firmware/a",
-  "arch/esp32/firmware/supervisor",
-  "arch/esp32/firmware/storage",
-  "common/firmware/update",
-  "common/firmware/boot",
-  "common/firmware/image",
-  "common/firmware/auth",
-  "common/firmware/bootauth",
+  "examples/ota-system",
+  "arch/esp32/boot",
+  "examples/bootloader",
+  "arch/esp32/a",
+  "arch/esp32/supervisor",
+  "arch/esp32/storage",
+  "common/update",
+  "common/boot",
+  "common/image",
+  "common/auth",
+  "common/bootauth",
 ]
 resolver = "3"
 
@@ -40,7 +40,7 @@ overflow-checks = false
 
 # Signature verification runs once per OTA: favour flash over speed for the
 # RustCrypto curve stack (only linked by the signed profile, see
-# docs/firmware/ota-image-authentication.md).
+# docs/ota-image-authentication.md).
 [profile.release.package.p256]
 opt-level = "s"
 [profile.release.package.primeorder]

@@ -62,7 +62,7 @@ the ELF the later stages (console check, geometry, size gates) reuse.
   unsigned and verified second stage, and the application stamped with that offset.
 
 ESP32-C3 results are compile and link validation. Only the ESP32-S3 verified boot is hardware-qualified
-(`docs/firmware/verified-boot-evidence.md`); a green CI is never a hardware qualification.
+(`docs/verified-boot-evidence.md`); a green CI is never a hardware qualification.
 
 ## Removed with the monorepo logic
 

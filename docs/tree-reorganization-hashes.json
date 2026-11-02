@@ -1,0 +1,800 @@
+{
+  "baseline": "ec6035b1270e1ee3a5f282d6a1f2ba15a0ee015e",
+  "rust_files": 112,
+  "byte_identical": 105,
+  "exceptions": [
+    "arch/esp32/boot/tests/geometry.rs",
+    "common/boot/src/lib.rs",
+    "common/boot/src/tests.rs",
+    "common/bootauth/src/soft.rs",
+    "common/image/src/esp_tests.rs",
+    "examples/bootloader/build.rs",
+    "examples/ota-supervised/component/build.rs"
+  ],
+  "files": [
+    {
+      "before": "arch/esp32/firmware/a/src/flash.rs",
+      "after": "arch/esp32/a/src/flash.rs",
+      "sha256_before": "edd7ff97216f3a855db1ad6721eee6c776a0a5ab0928d461afd57d32acaad652",
+      "sha256_after": "edd7ff97216f3a855db1ad6721eee6c776a0a5ab0928d461afd57d32acaad652",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/a/src/lib.rs",
+      "after": "arch/esp32/a/src/lib.rs",
+      "sha256_before": "7cb4144816f2003540451e66aff9a92634188e50cafa82896a55874852e3d2c9",
+      "sha256_after": "7cb4144816f2003540451e66aff9a92634188e50cafa82896a55874852e3d2c9",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/a/src/otadata.rs",
+      "after": "arch/esp32/a/src/otadata.rs",
+      "sha256_before": "872fbdbd749e2d7ae76cdc199c77968dc36e60e43099ae88e0153a7a615ab79a",
+      "sha256_after": "872fbdbd749e2d7ae76cdc199c77968dc36e60e43099ae88e0153a7a615ab79a",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/a/src/otadata_esp.rs",
+      "after": "arch/esp32/a/src/otadata_esp.rs",
+      "sha256_before": "715a587ea1e05cd0ec3cf7d6816d49b4e4f662ae5855465e5b0ad6ea1f9cb71f",
+      "sha256_after": "715a587ea1e05cd0ec3cf7d6816d49b4e4f662ae5855465e5b0ad6ea1f9cb71f",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/a/src/platform.rs",
+      "after": "arch/esp32/a/src/platform.rs",
+      "sha256_before": "6f9fd30ff22e2ff5dfeb81c0c82687eb2ddb77e0187a31d76d380ba2ef2f30bc",
+      "sha256_after": "6f9fd30ff22e2ff5dfeb81c0c82687eb2ddb77e0187a31d76d380ba2ef2f30bc",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/a/src/running.rs",
+      "after": "arch/esp32/a/src/running.rs",
+      "sha256_before": "944090f388ecce0c40d044137477e5117a392ffc3f6ced8ca6d6ab43fc2418e8",
+      "sha256_after": "944090f388ecce0c40d044137477e5117a392ffc3f6ced8ca6d6ab43fc2418e8",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/a/src/selection.rs",
+      "after": "arch/esp32/a/src/selection.rs",
+      "sha256_before": "6c6485aee7279f692f12de443c62688e4fbf7c6af676772370500b041bef7c1a",
+      "sha256_after": "6c6485aee7279f692f12de443c62688e4fbf7c6af676772370500b041bef7c1a",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/a/src/service.rs",
+      "after": "arch/esp32/a/src/service.rs",
+      "sha256_before": "81b151f38dd3fe25e635fe4146243b7be04ddf635732c152be2cbb00e8e01119",
+      "sha256_after": "81b151f38dd3fe25e635fe4146243b7be04ddf635732c152be2cbb00e8e01119",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/boot/examples/factory_otadata.rs",
+      "after": "arch/esp32/boot/examples/factory_otadata.rs",
+      "sha256_before": "cfc6440e2e2e1658e367894789f77e4ad793a7e5ceeecdf405611b5e2340f5a8",
+      "sha256_after": "cfc6440e2e2e1658e367894789f77e4ad793a7e5ceeecdf405611b5e2340f5a8",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/boot/examples/validate_image.rs",
+      "after": "arch/esp32/boot/examples/validate_image.rs",
+      "sha256_before": "11f026e7cfb1ac90ad0a41bd377eb26cfacb4ec89b3e9b11565693e5831ccc7d",
+      "sha256_after": "11f026e7cfb1ac90ad0a41bd377eb26cfacb4ec89b3e9b11565693e5831ccc7d",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/boot/src/hal_sha.rs",
+      "after": "arch/esp32/boot/src/hal_sha.rs",
+      "sha256_before": "401fa8e198768a8f74f63c45290954e2ca22a37728fc0a42c8e8613a3fdf8a1b",
+      "sha256_after": "401fa8e198768a8f74f63c45290954e2ca22a37728fc0a42c8e8613a3fdf8a1b",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/boot/src/hw.rs",
+      "after": "arch/esp32/boot/src/hw.rs",
+      "sha256_before": "913df233d07607583b2a18e431de159c4c0a567a9254a7dad1848d9248f25d5c",
+      "sha256_after": "913df233d07607583b2a18e431de159c4c0a567a9254a7dad1848d9248f25d5c",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/boot/src/layout.rs",
+      "after": "arch/esp32/boot/src/layout.rs",
+      "sha256_before": "da776d1d11a8dfe3b7e586b76efae4785786c03aba4c144d2155fd99f554d956",
+      "sha256_after": "da776d1d11a8dfe3b7e586b76efae4785786c03aba4c144d2155fd99f554d956",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/boot/src/lib.rs",
+      "after": "arch/esp32/boot/src/lib.rs",
+      "sha256_before": "6bdda8da92b8438932f40b8cc4b610d187c61b685d3f0ccce15da0325822ef66",
+      "sha256_after": "6bdda8da92b8438932f40b8cc4b610d187c61b685d3f0ccce15da0325822ef66",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/boot/src/rom_verify.rs",
+      "after": "arch/esp32/boot/src/rom_verify.rs",
+      "sha256_before": "5e548f1057fca28688d5e64b012b40a62a9b96ad7403d9e6d900cdbe8c3b8053",
+      "sha256_after": "5e548f1057fca28688d5e64b012b40a62a9b96ad7403d9e6d900cdbe8c3b8053",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/boot/tests/geometry.rs",
+      "after": "arch/esp32/boot/tests/geometry.rs",
+      "sha256_before": "89b68ff5dedcc72fb17d7f770fa311ca06ac89906d8e1156b03feeb6ad183f6e",
+      "sha256_after": "b43433b0595a145c18342ba060ee6bff5c9e09e24ea00475ff9bb8358a9ceaf3",
+      "byte_identical": false
+    },
+    {
+      "before": "arch/esp32/firmware/boot/tests/rom_sha.rs",
+      "after": "arch/esp32/boot/tests/rom_sha.rs",
+      "sha256_before": "276dda79451ebe34cf308563ee2b2413e8637128b8ee05b02da95c4e3035024e",
+      "sha256_after": "276dda79451ebe34cf308563ee2b2413e8637128b8ee05b02da95c4e3035024e",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/storage/src/lib.rs",
+      "after": "arch/esp32/storage/src/lib.rs",
+      "sha256_before": "de815cc8346b04dcffad19911e284c2bb7eb0d2ad64322b207d00357f247e724",
+      "sha256_after": "de815cc8346b04dcffad19911e284c2bb7eb0d2ad64322b207d00357f247e724",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/storage/src/ota_meta.rs",
+      "after": "arch/esp32/storage/src/ota_meta.rs",
+      "sha256_before": "fd5d2e54c53a0c2dacd6c371785f0e61105cb21d4d912448bf6b8b6e0b40c313",
+      "sha256_after": "fd5d2e54c53a0c2dacd6c371785f0e61105cb21d4d912448bf6b8b6e0b40c313",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/storage/src/partitions.rs",
+      "after": "arch/esp32/storage/src/partitions.rs",
+      "sha256_before": "8bd35f0267a0c8f6cdd350af1f17dd1f7a04cb8cda0f8ccc75fe5c1e21c0fc8a",
+      "sha256_after": "8bd35f0267a0c8f6cdd350af1f17dd1f7a04cb8cda0f8ccc75fe5c1e21c0fc8a",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/storage/src/proof.rs",
+      "after": "arch/esp32/storage/src/proof.rs",
+      "sha256_before": "ff1fcfc965bc908fefea0dd1e9b4a24c26708a7a762fbd7d0ec73af1ebf5a1ed",
+      "sha256_after": "ff1fcfc965bc908fefea0dd1e9b4a24c26708a7a762fbd7d0ec73af1ebf5a1ed",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/storage/src/shared_flash.rs",
+      "after": "arch/esp32/storage/src/shared_flash.rs",
+      "sha256_before": "d1b034400a416d89619c6396cffdc4446994c6c3753ef8d738b43bc59580c307",
+      "sha256_after": "d1b034400a416d89619c6396cffdc4446994c6c3753ef8d738b43bc59580c307",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/supervisor/src/lib.rs",
+      "after": "arch/esp32/supervisor/src/lib.rs",
+      "sha256_before": "dba25ef36ebd9f7357cd9b09ce02ab65520ae288748eceb2a287a2ba6e82b6a6",
+      "sha256_after": "dba25ef36ebd9f7357cd9b09ce02ab65520ae288748eceb2a287a2ba6e82b6a6",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/supervisor/src/metadata.rs",
+      "after": "arch/esp32/supervisor/src/metadata.rs",
+      "sha256_before": "66e86be058a07aeeae2419e16f030142a17296aa1f8cb09724467f038b18455c",
+      "sha256_after": "66e86be058a07aeeae2419e16f030142a17296aa1f8cb09724467f038b18455c",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/supervisor/src/native.rs",
+      "after": "arch/esp32/supervisor/src/native.rs",
+      "sha256_before": "29d3ba6a11d228847bc76198f9c011cf7345f04bce4278bd326534568aae8221",
+      "sha256_after": "29d3ba6a11d228847bc76198f9c011cf7345f04bce4278bd326534568aae8221",
+      "byte_identical": true
+    },
+    {
+      "before": "arch/esp32/firmware/supervisor/src/storage.rs",
+      "after": "arch/esp32/supervisor/src/storage.rs",
+      "sha256_before": "8f27f64542260890e092461e8f9ff42906dfcc9fb4eabd7872d5cc2f27aa222a",
+      "sha256_after": "8f27f64542260890e092461e8f9ff42906dfcc9fb4eabd7872d5cc2f27aa222a",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/examples/ota_sign.rs",
+      "after": "common/auth/examples/ota_sign.rs",
+      "sha256_before": "3a80761d320215182968861d7155e7967eac31549c19f0f1ad6ea25fb27adaa6",
+      "sha256_after": "3a80761d320215182968861d7155e7967eac31549c19f0f1ad6ea25fb27adaa6",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/src/error.rs",
+      "after": "common/auth/src/error.rs",
+      "sha256_before": "74551a22dab00b879c97bb6fecebe79f7b8bb872be71b2b370ea95af624892a7",
+      "sha256_after": "74551a22dab00b879c97bb6fecebe79f7b8bb872be71b2b370ea95af624892a7",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/src/floor.rs",
+      "after": "common/auth/src/floor.rs",
+      "sha256_before": "f5a9a51675fcb77c70d7f86faa2c01c0221597eaac36bc7248342d6d1f0cd05a",
+      "sha256_after": "f5a9a51675fcb77c70d7f86faa2c01c0221597eaac36bc7248342d6d1f0cd05a",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/src/lib.rs",
+      "after": "common/auth/src/lib.rs",
+      "sha256_before": "9bff893fd2a4e6f443e00d5079f3d7a7923f4b60121a50a8ec2d3a3cb44fc743",
+      "sha256_after": "9bff893fd2a4e6f443e00d5079f3d7a7923f4b60121a50a8ec2d3a3cb44fc743",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/src/maintenance.rs",
+      "after": "common/auth/src/maintenance.rs",
+      "sha256_before": "b7c59df843fc82273bb478e5f5eb6241b3cfda0140389c915f1a8954135af24c",
+      "sha256_after": "b7c59df843fc82273bb478e5f5eb6241b3cfda0140389c915f1a8954135af24c",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/src/manifest.rs",
+      "after": "common/auth/src/manifest.rs",
+      "sha256_before": "9da8081b08d517a4b1bb63e2cb0a816f5af58a3ca0c18dddcc20b411928697c8",
+      "sha256_after": "9da8081b08d517a4b1bb63e2cb0a816f5af58a3ca0c18dddcc20b411928697c8",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/src/policy.rs",
+      "after": "common/auth/src/policy.rs",
+      "sha256_before": "1702be1cee8e9d6e5cdb98832e755595724d3f94420856181fce73da168a6a9e",
+      "sha256_after": "1702be1cee8e9d6e5cdb98832e755595724d3f94420856181fce73da168a6a9e",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/src/profile.rs",
+      "after": "common/auth/src/profile.rs",
+      "sha256_before": "1cdb3d727c4dde33f1737e6365ee9f45b39f3f05c91dc18960251c0394c9a569",
+      "sha256_after": "1cdb3d727c4dde33f1737e6365ee9f45b39f3f05c91dc18960251c0394c9a569",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/src/verify.rs",
+      "after": "common/auth/src/verify.rs",
+      "sha256_before": "a4efc23833380441d440a5f5ca38a4c4c5a028b427867aa5d3687fda3e1fd203",
+      "sha256_after": "a4efc23833380441d440a5f5ca38a4c4c5a028b427867aa5d3687fda3e1fd203",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/tests/profiles.rs",
+      "after": "common/auth/tests/profiles.rs",
+      "sha256_before": "1b057413bce0a728a7751b184d9320c9c7120655637ffdfad1a85bf0ca589da4",
+      "sha256_after": "1b057413bce0a728a7751b184d9320c9c7120655637ffdfad1a85bf0ca589da4",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/auth/tests/rsa_algorithm.rs",
+      "after": "common/auth/tests/rsa_algorithm.rs",
+      "sha256_before": "aebca926bdfcab2ae3e27e23ad2813eb4f52c1471bcbde21b082aa02d3d5361e",
+      "sha256_after": "aebca926bdfcab2ae3e27e23ad2813eb4f52c1471bcbde21b082aa02d3d5361e",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/boot/src/lib.rs",
+      "after": "common/boot/src/lib.rs",
+      "sha256_before": "755080dc5729d1e190b8f4623265eee770c7e338abf946b8bf0728a00c338b82",
+      "sha256_after": "75ca279b01d1ab062b9fedbf2e39fd328ade677af45543c203fadc3f86ad4c5c",
+      "byte_identical": false
+    },
+    {
+      "before": "common/firmware/boot/src/tests.rs",
+      "after": "common/boot/src/tests.rs",
+      "sha256_before": "55517eb88b8a2a74d513230ef63167f632da91d89c11ae4fe51ae740ebef6ee7",
+      "sha256_after": "93b1c284af92544bf9b6f3026f8a04b7903492822409e9897e8519d54f4f9d42",
+      "byte_identical": false
+    },
+    {
+      "before": "common/firmware/boot/src/transaction.rs",
+      "after": "common/boot/src/transaction.rs",
+      "sha256_before": "6e4549a88fb4d2e5a34dc99919d11770817526017c6e1a015b7e28dc650188be",
+      "sha256_after": "6e4549a88fb4d2e5a34dc99919d11770817526017c6e1a015b7e28dc650188be",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/examples/iap1_pack.rs",
+      "after": "common/bootauth/examples/iap1_pack.rs",
+      "sha256_before": "d7027f96b0119941439ccbcf1bf9bb4abdeebabc70eea2b9346fea36b4b830d7",
+      "sha256_after": "d7027f96b0119941439ccbcf1bf9bb4abdeebabc70eea2b9346fea36b4b830d7",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/src/host.rs",
+      "after": "common/bootauth/src/host.rs",
+      "sha256_before": "950d966dac87727179af83b54e2ff427ed1303dcdc91a62d9a4df089bc074f22",
+      "sha256_after": "950d966dac87727179af83b54e2ff427ed1303dcdc91a62d9a4df089bc074f22",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/src/iap1.rs",
+      "after": "common/bootauth/src/iap1.rs",
+      "sha256_before": "196ffd88d03f74e98d9782a962e71fd267fc8be7ee5d33891916ab2834e14d7e",
+      "sha256_after": "196ffd88d03f74e98d9782a962e71fd267fc8be7ee5d33891916ab2834e14d7e",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/src/lib.rs",
+      "after": "common/bootauth/src/lib.rs",
+      "sha256_before": "208d4bc8b15a387a5da556339666c6ca99a90e65d38908e82fda3d9b19195eed",
+      "sha256_after": "208d4bc8b15a387a5da556339666c6ca99a90e65d38908e82fda3d9b19195eed",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/src/policy.rs",
+      "after": "common/bootauth/src/policy.rs",
+      "sha256_before": "9bf46b4813b130b00aecb32d67079c332ab9a57e048a6989f5cb3bf1563e5907",
+      "sha256_after": "9bf46b4813b130b00aecb32d67079c332ab9a57e048a6989f5cb3bf1563e5907",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/src/provision.rs",
+      "after": "common/bootauth/src/provision.rs",
+      "sha256_before": "93503a5d08343c8155d35ad999b4a02b7f9820e3eaaafb30c6941caf93ee4aae",
+      "sha256_after": "93503a5d08343c8155d35ad999b4a02b7f9820e3eaaafb30c6941caf93ee4aae",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/src/select.rs",
+      "after": "common/bootauth/src/select.rs",
+      "sha256_before": "e2907a8afeaa9b7c6dbf44a20dc0a293758fddf47978c9e44e1ae871a3b3e154",
+      "sha256_after": "e2907a8afeaa9b7c6dbf44a20dc0a293758fddf47978c9e44e1ae871a3b3e154",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/src/soft.rs",
+      "after": "common/bootauth/src/soft.rs",
+      "sha256_before": "c3519476a968436b7990e9ec0c515dbecbd8f0d5c969a21430b9e65854f125ea",
+      "sha256_after": "c7f902cf7c4be8ea528f7aabccc43ac044e56aca39d0b8abb61db609940b2e71",
+      "byte_identical": false
+    },
+    {
+      "before": "common/firmware/bootauth/src/traits.rs",
+      "after": "common/bootauth/src/traits.rs",
+      "sha256_before": "054c8226c534b0e567f5291dc4e131307105a8ba5e4fcbfe28638bf2b1f5649d",
+      "sha256_after": "054c8226c534b0e567f5291dc4e131307105a8ba5e4fcbfe28638bf2b1f5649d",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/src/verdict.rs",
+      "after": "common/bootauth/src/verdict.rs",
+      "sha256_before": "257ae5edeb497ab33128c692a202c256029e3a6090f62efca6b083846df414f9",
+      "sha256_after": "257ae5edeb497ab33128c692a202c256029e3a6090f62efca6b083846df414f9",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/src/writer.rs",
+      "after": "common/bootauth/src/writer.rs",
+      "sha256_before": "f8b4310f906899422155316484c6aa67cf5451819c1274b763e92c0d4d788e16",
+      "sha256_after": "f8b4310f906899422155316484c6aa67cf5451819c1274b763e92c0d4d788e16",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/tests/boot_selection.rs",
+      "after": "common/bootauth/tests/boot_selection.rs",
+      "sha256_before": "bb0efa3560015fe66818639e27ba5c7f43fb784b2f1d83a7547f068e13f14aa9",
+      "sha256_after": "bb0efa3560015fe66818639e27ba5c7f43fb784b2f1d83a7547f068e13f14aa9",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/tests/canonical_size.rs",
+      "after": "common/bootauth/tests/canonical_size.rs",
+      "sha256_before": "ee04de2155e1a679498dd0d7d61bb8c283dc4e2ab3099ab016f8480ba2417af5",
+      "sha256_after": "ee04de2155e1a679498dd0d7d61bb8c283dc4e2ab3099ab016f8480ba2417af5",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/tests/common/mod.rs",
+      "after": "common/bootauth/tests/common/mod.rs",
+      "sha256_before": "816cdf4cfa69d51bdc02041b64912afafd27b798254b9b363aee655b03b26b99",
+      "sha256_after": "816cdf4cfa69d51bdc02041b64912afafd27b798254b9b363aee655b03b26b99",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/tests/ota_sequence.rs",
+      "after": "common/bootauth/tests/ota_sequence.rs",
+      "sha256_before": "ada3821688568dfad6a48bebc55bf66935b127dc358dd2c3cb42ab91f8e7ee79",
+      "sha256_after": "ada3821688568dfad6a48bebc55bf66935b127dc358dd2c3cb42ab91f8e7ee79",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/tests/proof_write.rs",
+      "after": "common/bootauth/tests/proof_write.rs",
+      "sha256_before": "88ddebac846f928324f61480ee683bab694484d34394a3fbfb0c55316cf968bc",
+      "sha256_after": "88ddebac846f928324f61480ee683bab694484d34394a3fbfb0c55316cf968bc",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/tests/soft_sha.rs",
+      "after": "common/bootauth/tests/soft_sha.rs",
+      "sha256_before": "47384e83ecdbb1d706f37713f00c628d6a6bd071ccd2f1980327adf20f5795cd",
+      "sha256_after": "47384e83ecdbb1d706f37713f00c628d6a6bd071ccd2f1980327adf20f5795cd",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/bootauth/tests/verified_boot.rs",
+      "after": "common/bootauth/tests/verified_boot.rs",
+      "sha256_before": "8835137af535605dc20022573b709f22af891ed8d430e84023087c8d920a92e1",
+      "sha256_after": "8835137af535605dc20022573b709f22af891ed8d430e84023087c8d920a92e1",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/abi/src/lib.rs",
+      "after": "common/component/abi/src/lib.rs",
+      "sha256_before": "49addbead8d966c5b2192c6b71875bddd1219d0f625aa4d6f334b5933691d1cd",
+      "sha256_after": "49addbead8d966c5b2192c6b71875bddd1219d0f625aa4d6f334b5933691d1cd",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/image/src/lib.rs",
+      "after": "common/component/image/src/lib.rs",
+      "sha256_before": "fbbc0cc70d54da96ed143701ab0e0430dc4f8e6c019254ebd555df6f343b16c7",
+      "sha256_after": "fbbc0cc70d54da96ed143701ab0e0430dc4f8e6c019254ebd555df6f343b16c7",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/image/src/tests.rs",
+      "after": "common/component/image/src/tests.rs",
+      "sha256_before": "d4b5d91430fc9b87655c82703bc70a55850517c72967944cd6be9e2e170c732c",
+      "sha256_after": "d4b5d91430fc9b87655c82703bc70a55850517c72967944cd6be9e2e170c732c",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/native/src/boot_guard.rs",
+      "after": "common/component/native/src/boot_guard.rs",
+      "sha256_before": "4095c9a275e4d0df46d82147c92acf5ac038707c83fb5aaaf6a06971ecb598d7",
+      "sha256_after": "4095c9a275e4d0df46d82147c92acf5ac038707c83fb5aaaf6a06971ecb598d7",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/native/src/lib.rs",
+      "after": "common/component/native/src/lib.rs",
+      "sha256_before": "95b45f9a8e1416bc2c6374ca25930b5c98efbf0dfd1b7e104932fccbb447db40",
+      "sha256_after": "95b45f9a8e1416bc2c6374ca25930b5c98efbf0dfd1b7e104932fccbb447db40",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/native/src/runtime.rs",
+      "after": "common/component/native/src/runtime.rs",
+      "sha256_before": "e84dd6d3cb826775c042191df5990d956345e9a093d989bf22a56eb11b514991",
+      "sha256_after": "e84dd6d3cb826775c042191df5990d956345e9a093d989bf22a56eb11b514991",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/native/src/testing.rs",
+      "after": "common/component/native/src/testing.rs",
+      "sha256_before": "e77952a6c86dac367e53c7c4e8a6da2bd5b6a6130918e38f517276f6457c6f25",
+      "sha256_after": "e77952a6c86dac367e53c7c4e8a6da2bd5b6a6130918e38f517276f6457c6f25",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/native/src/tests.rs",
+      "after": "common/component/native/src/tests.rs",
+      "sha256_before": "e4f6594a9ea1e2a739007a2ecd5c94695785f5beef169a77bc862f0c832e2aee",
+      "sha256_after": "e4f6594a9ea1e2a739007a2ecd5c94695785f5beef169a77bc862f0c832e2aee",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/sdk/src/lib.rs",
+      "after": "common/component/sdk/src/lib.rs",
+      "sha256_before": "0cc7dbe52095a465e5f18b280883fad946757114c2e7a1c8e0b15d4168cc8545",
+      "sha256_after": "0cc7dbe52095a465e5f18b280883fad946757114c2e7a1c8e0b15d4168cc8545",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/component/sdk/src/tests.rs",
+      "after": "common/component/sdk/src/tests.rs",
+      "sha256_before": "5daea98abe89c952f7c3009b9bb58d70d2309b432656ec85839798ff6dae9304",
+      "sha256_after": "5daea98abe89c952f7c3009b9bb58d70d2309b432656ec85839798ff6dae9304",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/image/src/digest.rs",
+      "after": "common/image/src/digest.rs",
+      "sha256_before": "3d65f2b776ec7ec8bb3891256bf51a6a72ec25cc4ab40802eaa271c55ec56e63",
+      "sha256_after": "3d65f2b776ec7ec8bb3891256bf51a6a72ec25cc4ab40802eaa271c55ec56e63",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/image/src/esp.rs",
+      "after": "common/image/src/esp.rs",
+      "sha256_before": "6ae8f63b202dfdabadfcceb5b9799b1288f411f7bb1212f0b3903015e3ce11bf",
+      "sha256_after": "6ae8f63b202dfdabadfcceb5b9799b1288f411f7bb1212f0b3903015e3ce11bf",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/image/src/esp_tests.rs",
+      "after": "common/image/src/esp_tests.rs",
+      "sha256_before": "7bcdacc86fa24d1dbcb24e6aa52dbe8dfdb18c1bc0d4023306a99bf330407ae8",
+      "sha256_after": "ba13b8256ce4b2185733efd9a199b77c9a7ad4588dbc4bd8ba1ec69bceca7aaa",
+      "byte_identical": false
+    },
+    {
+      "before": "common/firmware/image/src/lib.rs",
+      "after": "common/image/src/lib.rs",
+      "sha256_before": "5bdff5c3d932ba34d0d443bf2b4b2a3045e7fc5f5ea0906238c025ce27960dc1",
+      "sha256_after": "5bdff5c3d932ba34d0d443bf2b4b2a3045e7fc5f5ea0906238c025ce27960dc1",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/examples/ota_meta_image.rs",
+      "after": "common/update/examples/ota_meta_image.rs",
+      "sha256_before": "b8269d40e28fccf4221e87e748b0a7723176bd8370412677fc98c760004fd07a",
+      "sha256_after": "b8269d40e28fccf4221e87e748b0a7723176bd8370412677fc98c760004fd07a",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/artifact.rs",
+      "after": "common/update/src/artifact.rs",
+      "sha256_before": "a23871ceb07904db6d2c2f72d573772e295569d82076ec1a460fd9115e3548d6",
+      "sha256_after": "a23871ceb07904db6d2c2f72d573772e295569d82076ec1a460fd9115e3548d6",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/bootstrap.rs",
+      "after": "common/update/src/bootstrap.rs",
+      "sha256_before": "1e49072f021e3fe797362b40a4295803f8c4a87d60e4fd20fd496595fc1f4d83",
+      "sha256_after": "1e49072f021e3fe797362b40a4295803f8c4a87d60e4fd20fd496595fc1f4d83",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/compat.rs",
+      "after": "common/update/src/compat.rs",
+      "sha256_before": "29937ef04ae36c7fc1589ccea7ad4b7601c2225d9142a5f7f13403ad87eb5bca",
+      "sha256_after": "29937ef04ae36c7fc1589ccea7ad4b7601c2225d9142a5f7f13403ad87eb5bca",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/compat/otm1.rs",
+      "after": "common/update/src/compat/otm1.rs",
+      "sha256_before": "240606d795039bc3f773acb5e82b12bfd19a9e3aa6ffdaa555deeda88d475c51",
+      "sha256_after": "240606d795039bc3f773acb5e82b12bfd19a9e3aa6ffdaa555deeda88d475c51",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/compat/otm2.rs",
+      "after": "common/update/src/compat/otm2.rs",
+      "sha256_before": "2d9488bb0fbdd170f37905a802aacb8e3e56da80722c7f87279832e6e8139a29",
+      "sha256_after": "2d9488bb0fbdd170f37905a802aacb8e3e56da80722c7f87279832e6e8139a29",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/compat/otm2_store.rs",
+      "after": "common/update/src/compat/otm2_store.rs",
+      "sha256_before": "1fc4415fe806e8ea46b74d7f10b940b7c1ed6f4038d4a448bcfdbb86095cd4a8",
+      "sha256_after": "1fc4415fe806e8ea46b74d7f10b940b7c1ed6f4038d4a448bcfdbb86095cd4a8",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/compat/tests.rs",
+      "after": "common/update/src/compat/tests.rs",
+      "sha256_before": "7a6c401e6472a38e9dc033b136d14dd24d3effc8b67b3b318ab40684cc022df3",
+      "sha256_after": "7a6c401e6472a38e9dc033b136d14dd24d3effc8b67b3b318ab40684cc022df3",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/config_space.rs",
+      "after": "common/update/src/config_space.rs",
+      "sha256_before": "3d9ae376187d97941f1a0d558bd7ec14779b1e38126f0a646fbf079d299c0ddd",
+      "sha256_after": "3d9ae376187d97941f1a0d558bd7ec14779b1e38126f0a646fbf079d299c0ddd",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/crc32.rs",
+      "after": "common/update/src/crc32.rs",
+      "sha256_before": "7818217cc52fa50f68340051524d8a6c73db610f5c6edae8107a54ceeac483eb",
+      "sha256_after": "7818217cc52fa50f68340051524d8a6c73db610f5c6edae8107a54ceeac483eb",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/double_copy.rs",
+      "after": "common/update/src/double_copy.rs",
+      "sha256_before": "b43e0e839f8664bf746763f37e720ef20977e208f710cec00045f7386e0f70fb",
+      "sha256_after": "b43e0e839f8664bf746763f37e720ef20977e208f710cec00045f7386e0f70fb",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/error.rs",
+      "after": "common/update/src/error.rs",
+      "sha256_before": "7cb544a8fe93032cb76e95e42d20ebecd79e52609f101dcd4e173fbd6562e8e0",
+      "sha256_after": "7cb544a8fe93032cb76e95e42d20ebecd79e52609f101dcd4e173fbd6562e8e0",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/frame_store.rs",
+      "after": "common/update/src/frame_store.rs",
+      "sha256_before": "ba09e3eefea1a38866be09747625c0b97bdb316770fe81620a88e48f84f4f973",
+      "sha256_after": "ba09e3eefea1a38866be09747625c0b97bdb316770fe81620a88e48f84f4f973",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/lib.rs",
+      "after": "common/update/src/lib.rs",
+      "sha256_before": "8826f98f59a25334c57776265c1ce3b45845e3d8a46c9d79be7b4a775b965322",
+      "sha256_after": "8826f98f59a25334c57776265c1ce3b45845e3d8a46c9d79be7b4a775b965322",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/nor_frames.rs",
+      "after": "common/update/src/nor_frames.rs",
+      "sha256_before": "29fe0955d3fbee0ee85b1c8eb8c6beadbf767559c622a7bf6d3f3af6b5f1f16d",
+      "sha256_after": "29fe0955d3fbee0ee85b1c8eb8c6beadbf767559c622a7bf6d3f3af6b5f1f16d",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/service.rs",
+      "after": "common/update/src/service.rs",
+      "sha256_before": "d49ecf1cd60ece4b0c9b9f544a2a9f49f7538b544212544e047f017452f67350",
+      "sha256_after": "d49ecf1cd60ece4b0c9b9f544a2a9f49f7538b544212544e047f017452f67350",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/service/boot.rs",
+      "after": "common/update/src/service/boot.rs",
+      "sha256_before": "b105c59997b5995ef6ea70b615f67f8f98ae20a7ff60455f7c5d1fd4581aa365",
+      "sha256_after": "b105c59997b5995ef6ea70b615f67f8f98ae20a7ff60455f7c5d1fd4581aa365",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/service/upload.rs",
+      "after": "common/update/src/service/upload.rs",
+      "sha256_before": "ef425f0efa3b4747737a8005b72874fe0662319ebf0bf24b7b739a1a449fa5a2",
+      "sha256_after": "ef425f0efa3b4747737a8005b72874fe0662319ebf0bf24b7b739a1a449fa5a2",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/state.rs",
+      "after": "common/update/src/state.rs",
+      "sha256_before": "2c3e38170c2ae3c43c483bbd0f6a399ecd500254fe622a267d5348b2a5f86e27",
+      "sha256_after": "2c3e38170c2ae3c43c483bbd0f6a399ecd500254fe622a267d5348b2a5f86e27",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/storage.rs",
+      "after": "common/update/src/storage.rs",
+      "sha256_before": "fbbf963801de9ab6ea2a2aebb68579e4f32d4e93c4e2208f1e7c750b7af72b50",
+      "sha256_after": "fbbf963801de9ab6ea2a2aebb68579e4f32d4e93c4e2208f1e7c750b7af72b50",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/supervised.rs",
+      "after": "common/update/src/supervised.rs",
+      "sha256_before": "8cfd06ca2132b2ce05e72e2aad38b9a7783e8d343592ec6ffce16739524d0abe",
+      "sha256_after": "8cfd06ca2132b2ce05e72e2aad38b9a7783e8d343592ec6ffce16739524d0abe",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/src/transaction.rs",
+      "after": "common/update/src/transaction.rs",
+      "sha256_before": "fe1e0d12972801799570935c19efe3938d117f44fbb243b5bdff112726fbd113",
+      "sha256_after": "fe1e0d12972801799570935c19efe3938d117f44fbb243b5bdff112726fbd113",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/tests/auth_service.rs",
+      "after": "common/update/tests/auth_service.rs",
+      "sha256_before": "4b9c9ca92d60a9f3aa3cac4784aed7722b02121e32e2668b438ad68807c1d017",
+      "sha256_after": "4b9c9ca92d60a9f3aa3cac4784aed7722b02121e32e2668b438ad68807c1d017",
+      "byte_identical": true
+    },
+    {
+      "before": "common/firmware/update/tests/legacy_fixtures.rs",
+      "after": "common/update/tests/legacy_fixtures.rs",
+      "sha256_before": "6b7c88830f9f15aba4036a2ba07dd2a4f4392a28e362044c2bb8f805f458a109",
+      "sha256_after": "6b7c88830f9f15aba4036a2ba07dd2a4f4392a28e362044c2bb8f805f458a109",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/bootloader/build.rs",
+      "after": "examples/bootloader/build.rs",
+      "sha256_before": "90ff2e24cb230d515eeb3b37b0a765d162f82800046301a4205bb6da8196f923",
+      "sha256_after": "14ccfbe889703d564a7940225e9b277d10277fd2768c41534645de5f766d6086",
+      "byte_identical": false
+    },
+    {
+      "before": "examples/firmware/bootloader/src/main.rs",
+      "after": "examples/bootloader/src/main.rs",
+      "sha256_before": "805da2a9e46e33f3570329b68d386796d3f7ee55bf8dd2c7530dc04d2839adbe",
+      "sha256_after": "805da2a9e46e33f3570329b68d386796d3f7ee55bf8dd2c7530dc04d2839adbe",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-supervised/build.rs",
+      "after": "examples/ota-supervised/build.rs",
+      "sha256_before": "2c8012ba0945443c59e06a6bae4f5418940e225a0e9c3d77797d9f89d6e1f0e9",
+      "sha256_after": "2c8012ba0945443c59e06a6bae4f5418940e225a0e9c3d77797d9f89d6e1f0e9",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-supervised/component/build.rs",
+      "after": "examples/ota-supervised/component/build.rs",
+      "sha256_before": "9060a2f8aa0d21c008cd25610f2a55a27b2b57a915aaa685791df385fca248e5",
+      "sha256_after": "c6dc0b298fb14f2d9f47b5e08fdcc1815376b571fd3a2206fea260cc11dcacbd",
+      "byte_identical": false
+    },
+    {
+      "before": "examples/firmware/ota-supervised/component/src/main.rs",
+      "after": "examples/ota-supervised/component/src/main.rs",
+      "sha256_before": "f1efe0a9ec2faa27cd3d1c18c3522ac29c49060b4e0f922b5459d04c0100cd87",
+      "sha256_after": "f1efe0a9ec2faa27cd3d1c18c3522ac29c49060b4e0f922b5459d04c0100cd87",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-supervised/src/lib.rs",
+      "after": "examples/ota-supervised/src/lib.rs",
+      "sha256_before": "14caa36698d0a031693b3588006ed338068a77bc2d49bab53fc3d65b1d4e9394",
+      "sha256_after": "14caa36698d0a031693b3588006ed338068a77bc2d49bab53fc3d65b1d4e9394",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-supervised/src/supervised.rs",
+      "after": "examples/ota-supervised/src/supervised.rs",
+      "sha256_before": "a487dfec5844aa97472f0355cd9b7a089b9a18cf9b79e4eb1bd766a278543c38",
+      "sha256_after": "a487dfec5844aa97472f0355cd9b7a089b9a18cf9b79e4eb1bd766a278543c38",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-system/build.rs",
+      "after": "examples/ota-system/build.rs",
+      "sha256_before": "728fe913fde3062db5e25cbc0babe5c9c02c08f89d4bb83cb5d0ef478afd8bab",
+      "sha256_after": "728fe913fde3062db5e25cbc0babe5c9c02c08f89d4bb83cb5d0ef478afd8bab",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-system/src/lib.rs",
+      "after": "examples/ota-system/src/lib.rs",
+      "sha256_before": "e909ebea1205daa0a9c9a4c13a3b9b568a02f25f7eae27822625a2398b80d73b",
+      "sha256_after": "e909ebea1205daa0a9c9a4c13a3b9b568a02f25f7eae27822625a2398b80d73b",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-system/src/main.rs",
+      "after": "examples/ota-system/src/main.rs",
+      "sha256_before": "0516b5379f8245e12968f2f20d4d21d4203c873c192045b7b0109ac55b57867e",
+      "sha256_after": "0516b5379f8245e12968f2f20d4d21d4203c873c192045b7b0109ac55b57867e",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-system/src/ota.rs",
+      "after": "examples/ota-system/src/ota.rs",
+      "sha256_before": "af6e01b4a5e9731f035baafd44c82b3bb1731d3e7a52172ca430dd4273ee3457",
+      "sha256_after": "af6e01b4a5e9731f035baafd44c82b3bb1731d3e7a52172ca430dd4273ee3457",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-system/src/upload_tests.rs",
+      "after": "examples/ota-system/src/upload_tests.rs",
+      "sha256_before": "c915d6d863a3aab9d4bf41f2052857742b141e81dc8fd71a8276b8792d73b76e",
+      "sha256_after": "c915d6d863a3aab9d4bf41f2052857742b141e81dc8fd71a8276b8792d73b76e",
+      "byte_identical": true
+    },
+    {
+      "before": "examples/firmware/ota-system/src/wifi.rs",
+      "after": "examples/ota-system/src/wifi.rs",
+      "sha256_before": "ba6441c85c4cbab9c1b617a60109528b91795076daceb58857590416c65fe392",
+      "sha256_after": "ba6441c85c4cbab9c1b617a60109528b91795076daceb58857590416c65fe392",
+      "byte_identical": true
+    },
+    {
+      "before": "tools/component-pack/src/lib.rs",
+      "after": "tools/component-pack/src/lib.rs",
+      "sha256_before": "aba8ed385049740d2973b45f6e60dbdd69f0550fcc7347498496adb42717c7ec",
+      "sha256_after": "aba8ed385049740d2973b45f6e60dbdd69f0550fcc7347498496adb42717c7ec",
+      "byte_identical": true
+    },
+    {
+      "before": "tools/component-pack/src/main.rs",
+      "after": "tools/component-pack/src/main.rs",
+      "sha256_before": "b0029b5adadf17755b55439ba148da88f63d5b7ba8d1e4063cb2610d92aa601b",
+      "sha256_after": "b0029b5adadf17755b55439ba148da88f63d5b7ba8d1e4063cb2610d92aa601b",
+      "byte_identical": true
+    },
+    {
+      "before": "tools/component-pack/src/tests.rs",
+      "after": "tools/component-pack/src/tests.rs",
+      "sha256_before": "236febd9eae218acc83d867eff9f6b956ad899e0296e294423300cb32add1915",
+      "sha256_after": "236febd9eae218acc83d867eff9f6b956ad899e0296e294423300cb32add1915",
+      "byte_identical": true
+    }
+  ]
+}

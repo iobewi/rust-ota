@@ -7,7 +7,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-iobewi-workload-image = { path = "../../common/firmware/component/image" }
-iobewi-workload-abi = { path = "../../common/firmware/component/abi" }
-iobewi-firmware-update = { path = "../../common/firmware/update" }
+iobewi-workload-image = { path = "../../common/component/image" }
+iobewi-workload-abi = { path = "../../common/component/abi" }
+iobewi-firmware-update = { path = "../../common/update" }
 sha2 = "0.10"
