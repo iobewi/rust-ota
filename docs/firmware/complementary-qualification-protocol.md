@@ -14,7 +14,7 @@ OTM1/BOOT/IAP1 state, verdict and exact restored hashes. No eFuses/production ke
 |---|---|---|
 | Hardware watchdog | Hang while PendingVerify; TIMG0 must expire, reset cause must identify watchdog, next boot returns to authentic confirmed image without candidate promotion | pending_check timeout and BOOT pending-reset planner; cooperative timeout is not physical watchdog proof |
 | Explicit self-check rejection | reject-self-check under signed-rsa; observe durable Invalid/rejection and authentic fallback after reset | boot service rejection and BOOT invalid-state tests |
-| No authentic image | Independently corrupt each proof/image pair; HALT NoUsableEntry, exact metadata unchanged; authorized restore recovers | verified_boot refusal and verified_selection integration tests |
+| No authentic image | Independently corrupt each proof/image pair; HALT NoUsableEntry, exact metadata unchanged; authorized restore recovers | verified_boot refusal and boot_selection integration tests |
 | Reverse fallback | Start confirmed ota_0, candidate ota_1; reject/interrupt candidate, prove ota_1→ota_0 with independent reads | symmetric slot/planner tests; no inference from forward device test |
 | ECDSA OTA | Build signed P-256 profile, test valid/foreign/revoked key, digest/target mismatch, publication/activation and restart | real host P-256 auth_service tests; this does not qualify RSA IAP1 boot for ECDSA |
 | Physical cuts | Controlled cut at erase, slot write, validation, IAP1 commit, OTM1 publish, BOOT activation and confirmation; every recovered image authentic or explicit HALT; report fallback loss, never format unknown state | BOOT exhaustive NOR model, frame/NOR prefix faults, proof_write/provision command cuts |
