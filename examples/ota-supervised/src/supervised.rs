@@ -251,7 +251,13 @@ impl Component {
         let mut buffer = [0; 2048];
         let mut remaining = meta.size as usize;
         {
-            let mut body = request.body_connection.body().reader();
+            let mut body = request
+                .body_connection
+                .body()
+                .reader()
+                .with_different_timeout(embassy_time::Duration::from_secs(
+                    example_firmware_ota_system::maintenance_http::UPLOAD_TIMEOUT_SECS,
+                ));
             while remaining > 0 {
                 let n = body
                     .read(&mut buffer[..remaining.min(2048)])
@@ -364,8 +370,16 @@ impl RequestHandlerService for Handler {
                 .and_then(|v| v.as_str().ok())
                 .unwrap_or("")
         };
-        let authorized = !self.token.is_empty()
-            && iobewi_http_server::auth::bearer_token(Some(header("authorization"))) == self.token;
+        let authorized = iobewi_firmware_auth::maintenance::token_matches(
+            self.token.as_bytes(),
+            Some(iobewi_http_server::auth::bearer_token(Some(header("authorization"))).as_bytes()),
+        );
+        if !authorized {
+            return example_firmware_ota_system::maintenance_http::reject_unauthorized(
+                request, writer,
+            )
+            .await;
+        }
         let id = String::from(header("x-deployment-id"));
         let version = String::from(header("x-component-version"));
         let metadata = example_firmware_ota_supervised::upload_metadata(
@@ -378,9 +392,7 @@ impl RequestHandlerService for Handler {
         let chunked = headers.get("transfer-encoding").is_some();
         let len = request.body_connection.content_length();
         let mut body = String::new();
-        let (status, message) = if !authorized {
-            (StatusCode::UNAUTHORIZED, "unauthorized")
-        } else if let Some(shared) = self.component {
+        let (status, message) = if let Some(shared) = self.component {
             let mut component = shared.lock().await;
             let result = match self.action {
                 0 => {

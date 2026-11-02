@@ -380,7 +380,13 @@ impl<S: MetadataStore> Handler<'_, S> {
             );
             return false;
         }
-        let mut reader = request.body_connection.body().reader();
+        let mut reader = request
+            .body_connection
+            .body()
+            .reader()
+            .with_different_timeout(embassy_time::Duration::from_secs(
+                example_firmware_ota_system::maintenance_http::UPLOAD_TIMEOUT_SECS,
+            ));
         let mut received = 0;
         while received < header.len() {
             match reader.read(&mut header[received..]).await {
@@ -528,6 +534,13 @@ impl<S: MetadataStore> RequestHandlerService for Handler<'_, S> {
                 .as_bytes(),
             ),
         );
+        if !authorized {
+            return example_firmware_ota_system::maintenance_http::reject_unauthorized(
+                request,
+                response_writer,
+            )
+            .await;
+        }
         let id = headers
             .get("x-deployment-id")
             .and_then(|v| v.as_str().ok())
@@ -547,9 +560,7 @@ impl<S: MetadataStore> RequestHandlerService for Handler<'_, S> {
         let len = request.body_connection.content_length();
         let valid_id = example_firmware_ota_system::valid_deployment_id(id);
         let mut reboot = false;
-        let (status, message) = if !authorized {
-            (StatusCode::UNAUTHORIZED, "unauthorized")
-        } else if !valid_id || headers.get("transfer-encoding").is_some() {
+        let (status, message) = if !valid_id || headers.get("transfer-encoding").is_some() {
             (StatusCode::BAD_REQUEST, "invalid request")
         } else if self.activate {
             if len != 0 {
@@ -698,10 +709,9 @@ pub async fn serve<S: MetadataStore>(
             }),
         );
     log::info!("OTA ready: HTTPS :443; upload then activate by deployment id");
-    // picoserve bounds the whole request, body included, by read_request (3 s
-    // default). Measured on S3: ~55 KB/s with erases, so a full 1.5 MiB slot needs
-    // ~28 s; budget 120 s. One connection at a time: a slow client holds it that long.
+    // Headers/ordinary requests get 3 s. Only authenticated upload readers get
+    // 120 s (measured full-slot upload ~28 s). Do not grant that budget to headers.
     let mut config = iobewi_http_server::server_config();
-    config.timeouts.read_request = embassy_time::Duration::from_secs(120);
+    example_firmware_ota_system::maintenance_http::configure(&mut config);
     iobewi_http_server::serve_forever_tls_with(&mut listener, &router, &config).await
 }
