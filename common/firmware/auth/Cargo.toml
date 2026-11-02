@@ -16,6 +16,7 @@ verify-p256 = ["dep:p256"]
 host-sign = ["verify-p256"]
 
 [dependencies]
+subtle = { version = "2.6", default-features = false }
 iobewi-firmware-image = { path = "../image" }
 sha2 = { version = "0.10", default-features = false }
 p256 = { version = "0.13", default-features = false, features = ["ecdsa"], optional = true }
