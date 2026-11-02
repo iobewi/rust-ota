@@ -29,13 +29,14 @@ fn ready<F: Future>(future: F) -> F::Output {
 }
 
 #[derive(Default)]
-struct Store(RefCell<Option<Vec<u8>>>);
+struct Store(RefCell<Option<Vec<u8>>>, Cell<usize>);
 impl MetadataStore for Store {
     type Error = ();
     async fn load_raw(&self) -> Result<Option<Vec<u8>>, ()> {
         Ok(self.0.borrow().clone())
     }
     async fn commit_raw(&self, bytes: &[u8]) -> Result<(), ()> {
+        self.1.set(self.1.get() + 1);
         *self.0.borrow_mut() = Some(bytes.to_vec());
         Ok(())
     }
@@ -560,4 +561,153 @@ fn a_slot_the_boot_stage_would_refuse_is_never_activated() {
         assert!(ready(service.activate(&store, &boot, &slot, "d1", Some(&good))).is_ok());
         assert_eq!((boot.activations.get(), slot.checks.get()), (1, 2));
     });
+}
+
+/// A stale upload must not replace the durable activation intent, even if it
+/// admitted/began before the other deployment activated (or skips begin).
+fn assert_publish_conflict<P: iobewi_firmware_auth::AuthProfile>(
+    service: &OtaService<P>,
+    proof: &P::Proof,
+    presented: Option<&[u8]>,
+) {
+    let store = Store::default();
+    let boot = Boot::default();
+    let slot = Slot::holding(IMAGE);
+    let p = params("stale", IMAGE);
+    ready(service.begin(&store, &p, proof)).unwrap();
+    ready(service.publish(
+        &store,
+        "winner".into(),
+        committed(IMAGE),
+        "ota_1".into(),
+        proof,
+    ))
+    .unwrap();
+    ready(service.activate(&store, &boot, &slot, "winner", presented)).unwrap();
+    let before = store.0.borrow().clone();
+    let writes = store.1.get();
+    for id in ["stale", "winner", "without-begin"] {
+        assert_eq!(
+            ready(service.publish(&store, id.into(), committed(IMAGE), "ota_0".into(), proof)),
+            Err(PublishError::Conflict)
+        );
+        assert_eq!(*store.0.borrow(), before);
+        assert_eq!(store.1.get(), writes);
+    }
+    assert_eq!(
+        ready(service.begin(&store, &p, proof)),
+        Err(BeginError::Conflict)
+    );
+    assert_eq!(*store.0.borrow(), before);
+    assert_eq!(store.1.get(), writes);
+}
+
+#[test]
+fn publish_cannot_replace_activating_in_either_profile() {
+    let unsigned = OtaService::new(UnsignedAllowed);
+    let proof = unsigned.admit(None, &params("d", IMAGE)).unwrap();
+    assert_publish_conflict(&unsigned, &proof, None);
+    let key = signer(7);
+    let good = envelope(&key, IMAGE, 1);
+    signed(&[(&key, false)], 0, |service| {
+        let proof = service.admit(Some(&good), &params("d", IMAGE)).unwrap();
+        assert_publish_conflict(service, &proof, Some(&good));
+    });
+}
+
+#[test]
+fn publish_refuses_while_boot_activation_is_suspended() {
+    struct SuspendedBoot;
+    impl BootActivation for SuspendedBoot {
+        fn valid_target(&self, _: &str) -> bool {
+            true
+        }
+        async fn activate(&self, _: &str) -> Result<(), ()> {
+            std::future::pending().await
+        }
+    }
+    let store = Store::default();
+    let service = OtaService::new(UnsignedAllowed);
+    let proof = service.admit(None, &params("d", IMAGE)).unwrap();
+    ready(service.publish(&store, "d".into(), committed(IMAGE), "ota_1".into(), &proof)).unwrap();
+    let slot = Slot::holding(IMAGE);
+    let activation = service.activate(&store, &SuspendedBoot, &slot, "d", None);
+    let mut activation = std::pin::pin!(activation);
+    assert!(
+        activation
+            .as_mut()
+            .poll(&mut Context::from_waker(Waker::noop()))
+            .is_pending()
+    );
+    let before = store.0.borrow().clone();
+    let writes = store.1.get();
+    assert_eq!(
+        ready(service.publish(
+            &store,
+            "replacement".into(),
+            committed(IMAGE),
+            "ota_0".into(),
+            &proof
+        )),
+        Err(PublishError::Conflict)
+    );
+    assert_eq!(*store.0.borrow(), before);
+    assert_eq!(store.1.get(), writes);
+}
+
+#[test]
+fn publication_fails_closed_on_unreadable_metadata() {
+    let store = Store::default();
+    *store.0.borrow_mut() = Some(b"corrupt".to_vec());
+    let before = store.0.borrow().clone();
+    let service = OtaService::new(UnsignedAllowed);
+    let proof = service.admit(None, &params("d", IMAGE)).unwrap();
+    assert_eq!(
+        ready(service.publish(&store, "d".into(), committed(IMAGE), "ota_1".into(), &proof)),
+        Err(PublishError::Storage(
+            iobewi_firmware_update::metadata::MetadataError::Corrupt
+        ))
+    );
+    assert_eq!(*store.0.borrow(), before);
+    assert_eq!(store.1.get(), 0);
+}
+
+#[test]
+fn activating_with_an_unprojectable_digest_still_blocks_begin_and_publish() {
+    use iobewi_firmware_update::metadata::{Metadata, Staged};
+    let service = OtaService::new(UnsignedAllowed);
+    let p = params("replacement", IMAGE);
+    let proof = service.admit(None, &p).unwrap();
+    for digest in ["", "invalid", "sha256:bad"] {
+        let metadata = Metadata {
+            staged: Staged {
+                stage: Stage::Activating,
+                slot: "ota_1".into(),
+                digest: digest.into(),
+                deployment_id: "in-flight".into(),
+                size: SIZE,
+            },
+            active_digest: format_digest(&OTHER),
+            active_deployment_id: "confirmed".into(),
+        };
+        let store = Store::default();
+        *store.0.borrow_mut() = Some(metadata.encode().unwrap());
+        let before = store.0.borrow().clone();
+        assert_eq!(
+            ready(service.begin(&store, &p, &proof)),
+            Err(BeginError::Conflict)
+        );
+        assert_eq!(
+            ready(service.publish(
+                &store,
+                "replacement".into(),
+                committed(IMAGE),
+                "ota_0".into(),
+                &proof
+            )),
+            Err(PublishError::Conflict)
+        );
+        assert_eq!(*store.0.borrow(), before);
+        assert_eq!(store.1.get(), 0);
+    }
 }

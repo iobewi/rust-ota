@@ -30,3 +30,17 @@ No automatic format/reset and no bootloader/otadata dependency for these domains
 Host tests cover first install, probation/activation interruptions, staged
 supersession, incompatible runtime, corrupt records and all 180 torn-copy byte
 prefixes. Real metadata-flash and runtime composition remain to be qualified.
+
+## OTM1 publication conflicts
+
+`OtaService::publish` independently refuses `Activating` with
+`PublishError::Conflict`, preserving the raw metadata without a commit. This
+also covers an upload begun before another deployment activates. UploadManager
+propagates this as `FinishError::Conflict`. Authorization and metadata-read
+failures also fail closed. Empty and Staged records remain supersedable.
+
+Atomic metadata publication does not serialize a whole read/modify/write
+workflow. Callers sharing a store must serialize metadata-changing workflows
+(including begin, publish, activation and boot reconciliation) across awaits.
+The reference application holds its system owner through upload/publication.
+The guard is not a compare-and-swap or a new cross-client concurrency contract.
