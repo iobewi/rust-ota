@@ -83,9 +83,20 @@ pub(crate) async fn publish<S: MetadataStore>(
     deployment_id: String,
     artifact: Committed,
     target: String,
-) -> Result<(), MetadataError> {
+) -> Result<(), PublishError> {
+    let mut metadata = crate::metadata::load_metadata(store)
+        .await
+        .map_err(PublishError::Storage)?;
+    if !can_supersede(crate::metadata::transaction_from_staged(&metadata.staged).as_ref()) {
+        return Err(PublishError::Conflict);
+    }
     let record = firmware_record(deployment_id, artifact.size, artifact.digest, target);
-    commit_transaction(store, Some(&record)).await
+    metadata.set_staged(
+        crate::metadata::staged_from_transaction(Some(&record)).map_err(PublishError::Storage)?,
+    );
+    crate::metadata::save_metadata(store, &metadata)
+        .await
+        .map_err(PublishError::Storage)
 }
 
 /// Validate the target without touching boot state, then activate it.
@@ -160,6 +171,8 @@ pub enum AdmitError {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PublishError {
+    /// An activation is in progress; its metadata must remain intact.
+    Conflict,
     Auth(AuthError),
     Storage(MetadataError),
 }
@@ -256,6 +269,10 @@ impl<P: AuthProfile> OtaService<P> {
     }
 
     /// Publishes a verified artifact only if the proof describes exactly it.
+    /// Refuses a persisted `Activating` transaction even without a preceding `begin`.
+    ///
+    /// Callers must serialize metadata-changing workflows over the same store:
+    /// `MetadataStore` provides atomic publication, not compare-and-swap across awaits.
     pub async fn publish<S: MetadataStore>(
         &self,
         store: &S,
@@ -267,9 +284,7 @@ impl<P: AuthProfile> OtaService<P> {
         self.profile
             .check_binding(proof, artifact.size, &artifact.digest)
             .map_err(PublishError::Auth)?;
-        publish(store, deployment_id, artifact, target)
-            .await
-            .map_err(PublishError::Storage)
+        publish(store, deployment_id, artifact, target).await
     }
 
     /// Activates the staged deployment `deployment_id`.

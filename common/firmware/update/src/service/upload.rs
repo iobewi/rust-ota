@@ -54,6 +54,8 @@ pub enum StartError {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FinishError {
+    /// An activation superseded this upload before publication.
+    Conflict,
     NotWriting,
     DigestMismatch(Digest),
     Incomplete {
@@ -186,6 +188,7 @@ impl<W: UploadWriter> UploadManager<W> {
             )
             .await
             .map_err(|error| match error {
+                PublishError::Conflict => FinishError::Conflict,
                 PublishError::Auth(error) => FinishError::Unauthorized(error),
                 PublishError::Storage(error) => FinishError::Storage(error),
             })?;
