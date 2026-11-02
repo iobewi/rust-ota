@@ -7,7 +7,7 @@ from pathlib import Path
 import esp_geometry as g
 
 ROOT = Path(__file__).resolve().parents[2]
-SYSTEM = ROOT / "examples/firmware/ota-system"
+SYSTEM = ROOT / "examples/ota-system"
 VAR = g.VARIABLE
 
 
@@ -46,7 +46,7 @@ for name, offset in (("partitions-s3-16mb-legacy.csv", 0x8000), ("partitions-s3-
     other = 0x10000 if offset == 0x8000 else 0x8000
     assert any("declares a table" in e for e in g.check_csv(path, offset=other)), "wrong build geometry is refused"
 # (the partition table of examples/config-manager stays in rust-mcu-libs: it is not part of this repository)
-for path in (SYSTEM / "partitions.csv", ROOT / "examples/firmware/ota-supervised/partitions.csv"):
+for path in (SYSTEM / "partitions.csv", ROOT / "examples/ota-supervised/partitions.csv"):
     declared, _, _ = g.parse_csv(path)
     assert declared == 0x8000, path
 print("Versioned partition files passed")

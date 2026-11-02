@@ -1,7 +1,7 @@
 # iOBEWi Rust OTA
 
 Verified boot and over-the-air update building blocks for ESP32: an authenticated, power-cut-aware A/B update chain,
-written in Rust, with a portable core (`common/firmware`) and ESP32 adapters (`arch/esp32/firmware`).
+written in Rust, with a portable core (`common`) and ESP32 adapters (`arch/esp32`).
 
 This repository was extracted from [`iobewi/rust-mcu-libs`](https://github.com/iobewi/rust-mcu-libs), where the
 sub-system was developed. The extraction is a **move only**: no source file, algorithm, flash format, IAP1 proof,
@@ -11,7 +11,7 @@ boot or OTA metadata was modified (see [Provenance](#provenance)).
 
 * **Software verified boot profile, ESP32-S3: qualified on hardware** (signature, digest and canonical length
   refusals, authenticated fallback, signed upload, proof publication, activation, confirmation, persistence,
-  rollback). Matrix and reports: [`docs/firmware/verified-boot-evidence.md`](docs/firmware/verified-boot-evidence.md).
+  rollback). Matrix and reports: [`docs/verified-boot-evidence.md`](docs/verified-boot-evidence.md).
 * **ESP32-C3: compiled and size-gated in CI only. Not qualified on hardware.**
 * Not provided: hardware root of trust (Secure Boot V2, eFuses, JTAG, flash encryption), persistent anti-rollback,
   key rotation and revocation, power-loss qualification on hardware.
@@ -20,17 +20,17 @@ boot or OTA metadata was modified (see [Provenance](#provenance)).
 
 | Path | Crate | Role |
 |---|---|---|
-| `common/firmware/auth` | `iobewi-firmware-auth` | IAM1 manifest, pinned keys, RSA-PSS 3072 and P-256 profiles |
-| `common/firmware/bootauth` | `iobewi-firmware-bootauth` | IAP1 boot proofs, `UnsignedBoot` / `VerifiedBoot`, canonical length |
-| `common/firmware/boot` | `iobewi-firmware-boot` | transactional A/B boot decisions, `otadata` v2 |
-| `common/firmware/image` | `iobewi-firmware-image` | SHA-256 digest, ESP image validation, canonical size |
-| `common/firmware/update` | `iobewi-firmware-update` | artifact streaming and update transaction engine, `ota_meta` |
-| `common/firmware/component/*` | `iobewi-workload`, `-abi`, `-image`, `-native` | supervised native component contracts |
-| `arch/esp32/firmware/{boot,a,storage,supervisor}` | `iobewi-esp-boot`, `iobewi-esp-firmware-{a,storage,supervisor}` | ESP32 adapters (ROM SHA-256 and RSA-PSS, slots, storage) |
-| `examples/firmware/bootloader` | `iobewi-esp-bootloader` | second stage, `verified-boot` feature |
-| `examples/firmware/ota-system`, `ota-supervised` | `example-firmware-*` | reference applications and their component |
+| `common/auth` | `iobewi-firmware-auth` | IAM1 manifest, pinned keys, RSA-PSS 3072 and P-256 profiles |
+| `common/bootauth` | `iobewi-firmware-bootauth` | IAP1 boot proofs, `UnsignedBoot` / `VerifiedBoot`, canonical length |
+| `common/boot` | `iobewi-firmware-boot` | transactional A/B boot decisions, `otadata` v2 |
+| `common/image` | `iobewi-firmware-image` | SHA-256 digest, ESP image validation, canonical size |
+| `common/update` | `iobewi-firmware-update` | artifact streaming and update transaction engine, `ota_meta` |
+| `common/component/*` | `iobewi-workload`, `-abi`, `-image`, `-native` | supervised native component contracts |
+| `arch/esp32/{boot,a,storage,supervisor}` | `iobewi-esp-boot`, `iobewi-esp-firmware-{a,storage,supervisor}` | ESP32 adapters (ROM SHA-256 and RSA-PSS, slots, storage) |
+| `examples/bootloader` | `iobewi-esp-bootloader` | second stage, `verified-boot` feature |
+| `examples/ota-system`, `ota-supervised` | `example-firmware-*` | reference applications and their component |
 | `tools/component-pack` | `iobewi-workload-pack` | component packer |
-| `docs/firmware` | | design, qualification protocols, campaigns, evidence matrix |
+| `docs` | | design, qualification protocols, campaigns, evidence matrix |
 
 ## Dependencies on rust-mcu-libs
 
@@ -74,9 +74,9 @@ Anti-rollback, key rotation and power-loss requirements are tracked in
 | Qualified code | tag `verified-boot-s3-qualified` (rust-mcu-libs commit `9ba953362e52103c488bb298b218843464a6b5b9`, head of PR #105; rewritten as `331c48b211bdcc966f9ba989c9df4bd0ab001882` in this repository, same tag name) |
 | Pull requests | [#101](https://github.com/iobewi/rust-mcu-libs/pull/101) (verified boot), [#105](https://github.com/iobewi/rust-mcu-libs/pull/105) (canonical length) |
 | Issues | [#91](https://github.com/iobewi/rust-mcu-libs/issues/91), [#104](https://github.com/iobewi/rust-mcu-libs/issues/104) |
-| Qualification reports and final audit | comments of the pull requests and issues above; index in [`docs/firmware/verified-boot-evidence.md`](docs/firmware/verified-boot-evidence.md) |
+| Qualification reports and final audit | comments of the pull requests and issues above; index in [`docs/verified-boot-evidence.md`](docs/verified-boot-evidence.md) |
 | Hardware | the qualification campaigns remain valid; the hardware backups and artefacts are not part of this repository |
 
 The Git history of the moved files was preserved (`git filter-branch` on the source history, paths unchanged).
-Issue and pull request numbers cited in `docs/firmware` before this migration (for example `#91`, `#101`, `#104`,
+Issue and pull request numbers cited in `docs` before this migration (for example `#91`, `#101`, `#104`,
 `#105`) refer to **`iobewi/rust-mcu-libs`**.

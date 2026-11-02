@@ -1,0 +1,113 @@
+[package]
+name = "example-firmware-ota-supervised"
+version.workspace = true
+edition.workspace = true
+rust-version = "1.95"
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "firmware-ota-supervised-esp32"
+path = "../ota-system/src/main.rs"
+required-features = ["firmware"]
+
+[features]
+default = []
+supervised = []
+firmware = [
+    "dep:iobewi-log",
+    "dep:iobewi-esp-console",
+    "dep:iobewi-config-space",
+    "dep:iobewi-esp-config-space",
+    "dep:esp-hal",
+    "dep:esp-rtos",
+    "dep:esp-alloc",
+    "dep:esp-bootloader-esp-idf",
+    "dep:embassy-executor",
+    "dep:static_cell",
+    "dep:iobewi-esp-firmware-a",
+    "dep:iobewi-esp-flash",
+    "dep:iobewi-esp-watchdog",
+    "dep:embassy-time",
+    "dep:log",
+    "dep:iobewi-esp-wifi",
+    "dep:iobewi-wifi-manager",
+    "dep:iobewi-esp-tls",
+    "dep:iobewi-crypto-mbedtls",
+    "dep:iobewi-http-server",
+    "dep:iobewi-esp-firmware-storage",
+    "dep:iobewi-firmware-slots",
+    "dep:iobewi-esp-boot",
+    "dep:embassy-net",
+    "dep:embassy-sync",
+    "dep:embedded-storage",
+    "dep:sha2",
+]
+# Declared so the shared OTA source type-checks. Enabling it is refused at compile time:
+# the /workload/* OTM2 routes carry no image authentication.
+signed = ["iobewi-firmware-auth/verify-p256"]
+signed-rsa = ["dep:iobewi-firmware-bootauth", "iobewi-esp-boot/rom-verify"]
+reject-self-check = []
+hang-self-check = []
+esp32s3 = [
+    "supervised",
+    "dep:iobewi-esp-firmware-supervisor",
+    "iobewi-esp-firmware-supervisor/native",
+    "dep:iobewi-workload-native",
+    "dep:iobewi-firmware-layout",
+    "iobewi-esp-wifi/esp32s3",
+    "iobewi-esp-tls/esp32s3",
+    "iobewi-esp-boot/esp32s3",
+    "iobewi-esp-firmware-a/esp32s3",
+    "iobewi-esp-flash/esp32s3",
+    "iobewi-esp-watchdog/esp32s3",
+    "firmware",
+    "esp-hal/esp32s3",
+    "esp-rtos/esp32s3",
+    "esp-alloc/esp32s3",
+    "esp-bootloader-esp-idf/esp32s3",
+    "iobewi-esp-config-space/esp32s3",
+    "iobewi-esp-console/esp32s3",
+]
+
+[dependencies]
+iobewi-log = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-esp-console = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-config-space = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-esp-config-space = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+esp-hal = { version = "~1.2", default-features = false, features = ["rt", "unstable"], optional = true }
+esp-rtos = { version = "~0.4", default-features = false, features = ["embassy", "esp-alloc", "esp-radio"], optional = true }
+esp-alloc = { version = "~0.11", default-features = false, features = ["global-allocator", "compat"], optional = true }
+esp-bootloader-esp-idf = { version = "~0.6", default-features = false, optional = true }
+embassy-executor = { version = "0.10.0", default-features = false, optional = true }
+static_cell = { version = "2.1", optional = true }
+
+iobewi-esp-firmware-a = { path = "../../arch/esp32/a", features = ["runtime"], optional = true }
+iobewi-esp-flash = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-esp-watchdog = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-firmware-update = { path = "../../common/update", features = ["runtime", "config-space"] }
+embassy-time = { version = "0.5.0", optional = true }
+log = { version = "0.4", optional = true }
+
+iobewi-esp-wifi = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-wifi-manager = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-esp-tls = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", default-features = false, optional = true }
+iobewi-crypto-mbedtls = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-http-server = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-esp-firmware-storage = { path = "../../arch/esp32/storage", optional = true }
+iobewi-firmware-slots = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+iobewi-firmware-image = { path = "../../common/image" }
+iobewi-firmware-auth = { path = "../../common/auth" }
+iobewi-firmware-bootauth = { path = "../../common/bootauth", optional = true }
+iobewi-esp-boot = { path = "../../arch/esp32/boot", optional = true }
+embassy-net = { version = "0.9.1", default-features = false, features = ["dhcpv4", "medium-ethernet", "tcp"], optional = true }
+embassy-sync = { version = "0.8.0", optional = true }
+embedded-storage = { version = "0.3.1", optional = true }
+sha2 = { version = "0.10.9", default-features = false, optional = true }
+
+example-firmware-ota-system = { path = "../ota-system" }
+iobewi-esp-firmware-supervisor = { path = "../../arch/esp32/supervisor", optional = true }
+iobewi-workload-native = { path = "../../common/component/native", optional = true }
+iobewi-firmware-layout = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
+
+iobewi-workload-image = { path = "../../common/component/image" }
