@@ -481,10 +481,15 @@ impl<S: MetadataStore> RequestHandlerService for Handler<'_, S> {
         response_writer: W,
     ) -> Result<ResponseSent, W::Error> {
         let headers = request.parts.headers();
-        let authorized = !TOKEN.is_empty()
-            && iobewi_http_server::auth::bearer_token(
-                headers.get("authorization").and_then(|v| v.as_str().ok()),
-            ) == TOKEN;
+        let authorized = iobewi_firmware_auth::maintenance::token_matches(
+            TOKEN.as_bytes(),
+            Some(
+                iobewi_http_server::auth::bearer_token(
+                    headers.get("authorization").and_then(|v| v.as_str().ok()),
+                )
+                .as_bytes(),
+            ),
+        );
         let id = headers
             .get("x-deployment-id")
             .and_then(|v| v.as_str().ok())
