@@ -68,7 +68,7 @@ report=pathlib.Path('docs/tree-reorganization-hashes.json')
 if '--write-report' in __import__('sys').argv:
     report.write_text(json.dumps(result,indent=2)+'\n')
 else:
-    assert json.loads(report.read_text())==result,'recorded hash report differs from current tree' 
+    assert json.loads(report.read_text())==result,'recorded hash report differs from current tree'
 print('Rust:',len(rows),'files;',result['byte_identical'],'byte-identical;',len(exceptions),'path/comment exceptions')
 print('Manifest contracts unchanged; local paths exist inside repo; linkers/fixtures/tables byte-identical')
 print('Existing broken Markdown links:',existing_broken,'remaining:',new_broken)
