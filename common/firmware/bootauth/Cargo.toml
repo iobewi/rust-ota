@@ -19,7 +19,7 @@ soft-sha256 = ["dep:sha2"]
 iobewi-firmware-auth = { path = "../auth" }
 iobewi-firmware-boot = { path = "../boot" }
 iobewi-firmware-image = { path = "../image" }
-iobewi-firmware-layout = { path = "../layout" }
+iobewi-firmware-layout = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28" }
 rsa = { version = "0.9", default-features = false, features = ["std", "pem", "sha2"], optional = true }
 rand_core = { version = "0.6", features = ["getrandom"], optional = true }
 sha2 = { version = "0.10", default-features = false, optional = true }

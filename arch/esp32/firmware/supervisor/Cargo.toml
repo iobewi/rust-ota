@@ -14,15 +14,16 @@ esp32c3 = ["dep:iobewi-esp-firmware-storage", "iobewi-esp-firmware-storage/esp32
 esp32s3 = ["dep:iobewi-esp-firmware-storage", "iobewi-esp-firmware-storage/esp32s3", "dep:iobewi-esp-flash", "iobewi-esp-flash/esp32s3", ]
 
 [dependencies]
-iobewi-firmware-layout = { path = "../../../../common/firmware/layout" }
-iobewi-firmware-slots = { path = "../../../../common/firmware/slots" }
+iobewi-firmware-layout = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28" }
+iobewi-firmware-slots = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28" }
 
 [dependencies.iobewi-esp-firmware-storage]
 path = "../storage"
 optional = true
 
 [dependencies.iobewi-esp-flash]
-path = "../../flash"
+git = "https://github.com/iobewi/rust-mcu-libs"
+rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28"
 optional = true
 
 [dependencies.iobewi-firmware-update]
@@ -54,7 +55,8 @@ path = "../../../../common/firmware/component/abi"
 optional = true
 
 [dependencies.iobewi-esp-partitions]
-path = "../../flash/partitions"
+git = "https://github.com/iobewi/rust-mcu-libs"
+rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28"
 optional = true
 
 [dependencies.sha2]

@@ -18,8 +18,8 @@ sha-hal = ["rom-verify", "dep:esp-hal", "esp-hal/unstable", "dep:nb"]
 sha-soft = ["rom-verify", "iobewi-firmware-bootauth/soft-sha256"]
 [dependencies]
 iobewi-firmware-image = { path = "../../../../common/firmware/image", default-features = false }
-iobewi-esp-partitions = { path = "../../flash/partitions", default-features = false }
-iobewi-firmware-layout = { path = "../../../../common/firmware/layout" }
+iobewi-esp-partitions = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28", default-features = false }
+iobewi-firmware-layout = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "59f3b83985caf5b1f617da00dd3dfaa6bd988f28" }
 iobewi-firmware-auth = { path = "../../../../common/firmware/auth", optional = true }
 iobewi-firmware-bootauth = { path = "../../../../common/firmware/bootauth", optional = true }
 esp-hal = { version = "~1.2", default-features = false, optional = true }
