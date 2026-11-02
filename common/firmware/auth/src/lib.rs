@@ -12,6 +12,7 @@
 //! [`profile`] (the two profiles and their proofs), [`error`].
 
 pub mod error;
+pub mod floor;
 pub mod manifest;
 pub mod policy;
 pub mod profile;
