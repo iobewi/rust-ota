@@ -91,8 +91,8 @@ esp32s3 = [
     "iobewi-esp-console/esp32s3",
 ]
 
-[dev-dependencies]
-iobewi-firmware-boot = { path = "../../../common/firmware/boot" }
+[dev-dependencies.iobewi-firmware-boot]
+path = "../../../common/firmware/boot"
 
 [dependencies]
 iobewi-log = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
