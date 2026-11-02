@@ -69,6 +69,14 @@ rotation et conservation des clés (#92), coupures d'alimentation sur matériel,
 `reject-self-check` sous démarrage vérifié, absence de toute image authentique (HALT), repli `ota_1 → ota_0`,
 disponibilité du repli après un upload refusé, panic après confirmation.
 
-Issues de suivi : #106 (ESP32-C3), #107 (racine matérielle ESP32-S3), #108 (panic après confirmation), #109 (repli
-et diagnostic des rejets), #110 (qualification complémentaire), #111 (RP2350 et Teensy), #92 (anti-rollback, clés,
-coupures).
+Issues de suivi, dans `iobewi/rust-ota` : [#1](https://github.com/iobewi/rust-ota/issues/1) (ESP32-C3),
+[#2](https://github.com/iobewi/rust-ota/issues/2) (racine matérielle ESP32-S3),
+[#3](https://github.com/iobewi/rust-ota/issues/3) (panic après confirmation),
+[#4](https://github.com/iobewi/rust-ota/issues/4) (repli et diagnostic des rejets),
+[#5](https://github.com/iobewi/rust-ota/issues/5) (qualification complémentaire),
+[#6](https://github.com/iobewi/rust-ota/issues/6) (RP2350 et Teensy) ; et dans `iobewi/rust-mcu-libs`
+[#92](https://github.com/iobewi/rust-mcu-libs/issues/92) (anti-rollback, clés, coupures).
+
+*Migration du 2026-11-02 : ce document a été écrit dans `iobewi/rust-mcu-libs`. Les numéros `#91`, `#101`, `#104`,
+`#105` et `#92` qu'il cite désignent des issues et PR de ce dépôt ; les suivis `#106` à `#111` y ont été transférés
+vers `iobewi/rust-ota#1` à `#6`.*

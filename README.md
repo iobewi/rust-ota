@@ -53,6 +53,17 @@ builds (S3 on the pinned and the latest Xtensa toolchain), the console matrix, t
 verified-boot second-stage size gates, the flash geometry tool and its self-tests. Per-crate CI configuration is
 the `ci.json` next to each `Cargo.toml` (see [`.github/CI.md`](.github/CI.md)). `Cargo.lock` is not tracked.
 
+## Follow-up issues
+
+Open issues of this repository: [#1](https://github.com/iobewi/rust-ota/issues/1) ESP32-C3 hardware qualification,
+[#2](https://github.com/iobewi/rust-ota/issues/2) hardware root of trust on ESP32-S3,
+[#3](https://github.com/iobewi/rust-ota/issues/3) panic after confirmation,
+[#4](https://github.com/iobewi/rust-ota/issues/4) fallback availability after a refused upload and rejection diagnostics,
+[#5](https://github.com/iobewi/rust-ota/issues/5) additional ESP32-S3 qualification,
+[#6](https://github.com/iobewi/rust-ota/issues/6) RP2350 and Teensy study.
+Anti-rollback, key rotation and power-loss requirements are tracked in
+[`iobewi/rust-mcu-libs#92`](https://github.com/iobewi/rust-mcu-libs/issues/92).
+
 ## Provenance
 
 | | |
