@@ -95,6 +95,8 @@ esp32s3 = [
 path = "../../common/boot"
 
 [dependencies]
+# The same HTTP engine re-exported by iobewi-http-server, also exercised on host.
+picoserve = { version = "0.20.0", default-features = false }
 iobewi-log = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }
 iobewi-esp-console = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", default-features = false, optional = true }
 iobewi-config-space = { git = "https://github.com/iobewi/rust-mcu-libs", rev = "79ce788a6bda7b1e31211aedce8e05b97ebd37cc", optional = true }

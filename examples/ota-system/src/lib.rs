@@ -4,6 +4,8 @@
 #[cfg(test)]
 extern crate std;
 
+pub mod maintenance_http;
+
 /// Fatal-panic recovery deadline. The panic handler arms the hardware watchdog
 /// before printing, in every boot state, then stops. It never mutates boot metadata.
 pub const PANIC_RESET_MS: u64 = 1_000;
