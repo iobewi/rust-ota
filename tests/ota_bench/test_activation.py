@@ -16,6 +16,7 @@ from boot_metadata import SECTOR, assert_no_unconfirmed_new_selection
 from boot_transitions import require_confirmed_transition
 from diagnostic import validate_diagnostic
 from ota_http import OtaHttp, OtaTransportUncertain
+from ota_meta import decode_ota_meta
 
 pytestmark = pytest.mark.bench
 
@@ -37,7 +38,7 @@ def approved_activation():
         "schema", "scope", "device", "mcu", "flash_size", "table_offset",
         "pre_activation_flash", "pre_activation_sha256", "baseline_build_id",
         "candidate_build_id", "candidate_image", "candidate_sha256",
-        "candidate_manifest", "deployment_id", "otadata_offset",
+        "candidate_manifest", "deployment_id", "otadata_offset", "ota_meta_offset",
         "slot_0", "slot_1", "preserved_regions",
     }
     assert required <= set(plan), "Incomplete approved activation plan"
@@ -63,6 +64,9 @@ def approved_activation():
     assert type(plan["otadata_offset"]) is int
     assert plan["otadata_offset"] % SECTOR == 0
     assert 0 <= plan["otadata_offset"] <= plan["flash_size"] - 2 * SECTOR
+    assert type(plan["ota_meta_offset"]) is int
+    assert plan["ota_meta_offset"] % SECTOR == 0
+    assert 0 <= plan["ota_meta_offset"] <= plan["flash_size"] - 2 * SECTOR
     return plan
 
 
@@ -104,7 +108,7 @@ def test_activate_and_confirm_from_independently_staged_image(
     assert identity["chip"] == plan["mcu"]
     assert identity["flash_size"] == plan["flash_size"]
     table = {p["label"]: p for p in board.partitions(address=plan["table_offset"])}
-    assert {"ota_0", "ota_1", "otadata"} <= set(table)
+    assert {"ota_0", "ota_1", "otadata", "ota_meta"} <= set(table)
     for index in (0, 1):
         slot = plan[f"slot_{index}"]
         assert set(slot) == {"offset", "size"}
@@ -113,6 +117,8 @@ def test_activate_and_confirm_from_independently_staged_image(
         )
     assert table["otadata"]["address"] == plan["otadata_offset"]
     assert table["otadata"]["size"] == 2 * SECTOR
+    assert table["ota_meta"]["address"] == plan["ota_meta_offset"]
+    assert table["ota_meta"]["size"] == 2 * SECTOR
     for region in plan["preserved_regions"]:
         p = table[region["label"]]
         assert (p["address"], p["size"]) == (region["offset"], region["size"])
@@ -138,6 +144,18 @@ def test_activate_and_confirm_from_independently_staged_image(
     ).hexdigest() == plan["candidate_sha256"], (
         "Staged candidate flash bytes disagree with approved image"
     )
+    old_store_raw = snapshot[
+        plan["ota_meta_offset"]:plan["ota_meta_offset"] + 2 * SECTOR
+    ]
+    old_store = decode_ota_meta(old_store_raw)
+    assert old_store["kind"] == "Payload", "Candidate not durably staged"
+    staged = old_store["metadata"]
+    assert staged["stage"] == "Written"
+    assert staged["slot"] == f"ota_{target_slot}"
+    assert staged["digest"] == "sha256:" + plan["candidate_sha256"]
+    assert staged["deployment_id"] == plan["deployment_id"]
+    assert staged["size"] == image_size
+
     manifest = Path(plan["candidate_manifest"]).read_text(encoding="ascii").strip()
     OtaHttp.validate_manifest(manifest)
     ota_campaign.write("activation-before.json", {
@@ -170,6 +188,17 @@ def test_activate_and_confirm_from_independently_staged_image(
     transition = require_confirmed_transition(
         old_meta, new_meta, from_slot=old_slot, to_slot=target_slot
     )
+    # Verify the OTA transaction was durably promoted and the staged intent
+    # cleared; BOOT v2 Valid alone does not prove OTM1 finalization.
+    new_store_raw = board_after.read_flash(
+        address=plan["ota_meta_offset"], size=2 * SECTOR, timeout=600
+    )
+    new_store = decode_ota_meta(new_store_raw)
+    assert new_store["kind"] == "Payload", "OTM1 store unavailable after confirmation"
+    active = new_store["metadata"]
+    assert active["stage"] == "None", "Staged activation not durably finalized"
+    assert active["active_digest"] == "sha256:" + plan["candidate_sha256"]
+    assert active["active_deployment_id"] == plan["deployment_id"]
     preserved = []
     for region in plan["preserved_regions"]:
         address, size = region["offset"], region["size"]
@@ -186,6 +215,9 @@ def test_activate_and_confirm_from_independently_staged_image(
         "boot_transition": transition,
         "preserved_regions": preserved,
         "boot_metadata_readback_sha256": hashlib.sha256(new_meta).hexdigest(),
-        "otm1_independent_decode": False,
+        "otm1_independent_decode": True,
+        "otm1_frame_copy": new_store["copy"],
+        "otm1_frame_sequence": new_store["sequence"],
+        "otm1_store_sha256": hashlib.sha256(new_store_raw).hexdigest(),
         "image_authentication_independently_verified": False,
     })
