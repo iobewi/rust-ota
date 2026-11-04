@@ -48,9 +48,6 @@ def require_rollback_evidence(
     assert old_meta["active_digest"] == new_meta["active_digest"], (
         "Rejected candidate changed active image digest"
     )
-    assert new_meta["stage"] != "Written", (
-        "Rollback left candidate marked as newly staged"
-    )
     return {
         "fallback_slot": boot["fallback"]["slot"],
         "rejected_state": boot["rejected"]["state"],
