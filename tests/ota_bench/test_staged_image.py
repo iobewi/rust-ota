@@ -14,6 +14,7 @@ import pytest
 
 from diagnostic import validate_diagnostic
 from ota_http import OtaHttp, OtaTransportUncertain
+from ota_meta import decode_ota_meta, SECTOR
 
 pytestmark = pytest.mark.bench
 
@@ -38,7 +39,7 @@ def approved_stage():
         "schema", "scope", "device", "mcu", "flash_size", "table_offset",
         "backup_file", "backup_sha256", "image_file", "image_sha256",
         "manifest_file", "deployment_id", "baseline_build_id",
-        "slot_0", "slot_1",
+        "slot_0", "slot_1", "ota_meta_offset",
     }
     assert isinstance(plan, dict) and required <= set(plan), "Incomplete approval plan"
     assert plan["schema"] == 1 and plan["scope"] == "ota.stage-and-readback"
@@ -62,6 +63,9 @@ def approved_stage():
         )
         assert slot["offset"] % 4096 == 0 and slot["size"] > 0
         assert slot["offset"] + slot["size"] <= plan["flash_size"]
+    assert type(plan["ota_meta_offset"]) is int
+    assert plan["ota_meta_offset"] % SECTOR == 0
+    assert 0 <= plan["ota_meta_offset"] <= plan["flash_size"] - 2 * SECTOR
     first, second = plan["slot_0"], plan["slot_1"]
     assert (first["offset"] + first["size"] <= second["offset"]
             or second["offset"] + second["size"] <= first["offset"])
@@ -102,6 +106,9 @@ def test_staged_image_readback_without_activation(approved_stage, ota_campaign):
         p, expected = by_label[label], plan[name]
         assert (p["address"], p["size"]) == (expected["offset"], expected["size"])
 
+    assert by_label["ota_meta"]["address"] == plan["ota_meta_offset"]
+    assert by_label["ota_meta"]["size"] == 2 * SECTOR
+
     # A full 4 MiB private comparison, before ANY OTA application upload.
     baseline = board.read_flash(address=0, size=plan["flash_size"], timeout=600)
     assert hashlib.sha256(baseline).hexdigest() == plan["backup_sha256"], (
@@ -141,6 +148,20 @@ def test_staged_image_readback_without_activation(approved_stage, ota_campaign):
     assert hashlib.sha256(data).hexdigest() == plan["image_sha256"], (
         "Written slot digest disagrees with approved image"
     )
+    # Independent durable store read. A 200 staged alone does not prove an
+    # OTM1 commit: decode the *newest valid* OTSF frame from flash.
+    store_raw = board.read_flash(
+        address=plan["ota_meta_offset"], size=2 * SECTOR, timeout=600
+    )
+    store = decode_ota_meta(store_raw)
+    assert store["kind"] == "Payload", "No committed OTSF/OTM1 publication"
+    record = store["metadata"]
+    assert record["stage"] == "Written", "Staged transaction not durable"
+    assert record["slot"] == f"ota_{inactive}"
+    assert record["deployment_id"] == plan["deployment_id"]
+    assert record["size"] == image_size
+    assert record["digest"] == "sha256:" + plan["image_sha256"]
+
     ota_campaign.write("staged-readback.json", {
         "running_slot_before_upload": before["running_slot"],
         "target_slot": inactive,
@@ -150,5 +171,9 @@ def test_staged_image_readback_without_activation(approved_stage, ota_campaign):
         "http_staged": True,
         "independent_flash_readback": True,
         "activation_executed": False,
-        "otm1_durable_publication_independently_verified": False,
+        "otm1_durable_publication_independently_verified": True,
+        "otm1_frame_copy": store["copy"],
+        "otm1_frame_sequence": store["sequence"],
+        "otm1_degraded": store["degraded"],
+        "ota_meta_sha256": hashlib.sha256(store_raw).hexdigest(),
     })
