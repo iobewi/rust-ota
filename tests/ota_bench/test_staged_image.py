@@ -170,6 +170,7 @@ def test_staged_image_readback_without_activation(approved_stage, ota_campaign):
         "target_offset": target["offset"],
         "bytes_verified": len(data),
         "image_sha256": plan["image_sha256"],
+        "manifest_sha256": sha_file(plan["manifest_file"]),
         "http_staged": True,
         "independent_flash_readback": True,
         "activation_executed": False,
