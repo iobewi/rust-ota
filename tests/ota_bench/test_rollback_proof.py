@@ -76,5 +76,5 @@ def test_capture_sha256_and_length_are_mandatory(tmp_path):
         verified_capture(image, "0" * 64, expected_size=7)
     with pytest.raises(AssertionError, match="size"):
         verified_capture(image, correct, expected_size=8)
-    with pytest.raises(ValueError, match="hexadecimal"):
+    with pytest.raises(ValueError, match="Invalid expected SHA-256"):
         verified_capture(image, "x" * 64, expected_size=7)
