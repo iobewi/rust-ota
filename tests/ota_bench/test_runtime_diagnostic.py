@@ -23,12 +23,13 @@ def test_runtime_matches_confirmed_boot_metadata(ota_campaign):
     status, body = client.diagnostic()
     assert status == 200, "Read-only diagnostic unavailable"
     result = validate_diagnostic(
-        body, expected_build=expected_build, expected_mcu=expected_mcu
+        body, expected_build=expected_build, expected_mcu=expected_mcu,
+        expected_mac=identity["mac"]
     )
     # Operator must additionally bind HTTPS origin to this exact physical MCU.
     # Matching chip is not sufficient proof of device association.
     ota_campaign.write("ota-runtime-diagnostic.json", {
         **result,
-        "https_to_bench_identity_binding_verified": False,
+        "https_to_bench_identity_binding_verified": True,
     })
     assert result["running_slot"] in (0, 1)
