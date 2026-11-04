@@ -49,26 +49,85 @@ def test_unauthorized_activation_omits_bearer():
     assert "Authorization" not in client.calls[0][2]
 
 
-def test_upload_digest_body_and_headers(tmp_path):
+class StreamingConnection:
+    def __init__(self):
+        self.headers = {}
+        self.sent = []
+        self.closed = False
+        self.path = None
+
+    def putrequest(self, method, path):
+        assert method == "POST"
+        self.path = path
+
+    def putheader(self, name, value):
+        self.headers[name] = value
+
+    def endheaders(self):
+        pass
+
+    def send(self, chunk):
+        self.sent.append(chunk)
+
+    def getresponse(self):
+        class Response:
+            status = 200
+
+            def read(self, limit):
+                assert limit == 4097
+                return b"staged"
+
+        return Response()
+
+    def close(self):
+        self.closed = True
+
+
+def test_streamed_upload_digest_and_body(tmp_path):
     image = tmp_path / "candidate.bin"
-    image.write_bytes(b"test-image" * 32)
-    client = StubHttp((200, b"staged"))
-    assert client.upload(image, "upload-01", manifest="YWJj") == (200, b"staged")
-    _, path, headers, body = client.calls[0]
-    import hashlib
-    assert path == "/ota/upload"
-    assert headers["Content-Length"] == str(len(body))
-    assert headers["X-Image-SHA256"] == "sha256:" + hashlib.sha256(body).hexdigest()
-    assert headers["X-Image-Manifest"] == "YWJj"
-    assert body == image.read_bytes()
+    image.write_bytes(b"test-image" * 1024)
+    expected = __import__("hashlib").sha256(image.read_bytes()).hexdigest()
+    client = StubHttp()
+    connection = StreamingConnection()
+    client._connection = lambda: connection
+    assert client.upload(image, "upload-01", manifest="YWJj",
+                         expected_sha256=expected, max_bytes=20480) == (200, b"staged")
+    assert connection.path == "/ota/upload"
+    assert connection.headers["Content-Length"] == str(image.stat().st_size)
+    assert connection.headers["X-Image-SHA256"] == "sha256:" + expected
+    assert connection.headers["X-Image-Manifest"] == "YWJj"
+    assert b"".join(connection.sent) == image.read_bytes()
+    assert max(map(len, connection.sent)) <= 2048
+    assert connection.closed
 
 
 def test_empty_upload_rejected_locally_without_network(tmp_path):
     image = tmp_path / "empty.bin"
     image.write_bytes(b"")
     client = StubHttp()
-    with pytest.raises(ValueError, match="length"):
-        client.upload(image, "upload-01")
+    with pytest.raises(ValueError, match="Image size"):
+        client.upload(image, "upload-01", expected_sha256="0" * 64,
+                      max_bytes=4096)
+    assert client.calls == []
+
+
+def test_upload_wrong_digest_refused_before_connection(tmp_path):
+    image = tmp_path / "candidate.bin"
+    image.write_bytes(b"payload")
+    client = StubHttp()
+    with pytest.raises(ValueError, match="SHA-256 differs"):
+        client.upload(image, "upload-01", expected_sha256="0" * 64,
+                      max_bytes=4096)
+    assert client.calls == []
+
+
+def test_upload_capacity_must_be_approved(tmp_path):
+    image = tmp_path / "candidate.bin"
+    image.write_bytes(b"payload")
+    digest = __import__("hashlib").sha256(image.read_bytes()).hexdigest()
+    client = StubHttp()
+    with pytest.raises(ValueError, match="capacity"):
+        client.upload(image, "upload-01", expected_sha256=digest, max_bytes=3)
     assert client.calls == []
 
 
