@@ -24,7 +24,10 @@ jobs:
       - name: Run offline contracts (no --bench)
         run: |
           python -m pytest tests/ota_bench/test_http_contract.py tests/ota_bench/test_http_transport.py tests/ota_bench/test_upload_preparation.py tests/ota_bench/test_boot_metadata.py tests/ota_bench/test_boot_transitions.py tests/ota_bench/test_diagnostic_contract.py -q
-      - name: Collect hardware tests without connecting to the bench
+      - name: Verify hardware recipes safely skip without explicit --bench
+        run: |
+          python -m pytest tests/ota_bench -q
+      - name: Collect full recipe inventory without connecting to the bench
         run: |
           python -m pytest tests/ota_bench --collect-only -q
 
