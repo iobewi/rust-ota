@@ -703,8 +703,8 @@ impl<S: MetadataStore> RequestHandlerService for Diagnostic<'_, S> {
                         StatusCode::SERVICE_UNAVAILABLE,
                         "boot observation unavailable",
                     )
-                    .write_to(connection, response_writer)
-                    .await;
+                        .write_to(connection, response_writer)
+                        .await;
                 }
             }
         };
