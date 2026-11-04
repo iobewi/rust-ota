@@ -70,7 +70,7 @@ Le plugin utilise `--bench-device` et `--bench-url` ou les variables ci-dessus. 
 | O8 | Interruption transfert | Scénario borné, restauration disponible | contrat de reprise/abandon et état durable observés | NON EXÉCUTÉ |
 | O9 | Coupure écriture | Autorisation spécifique supplémentaire | ancien/nouveau état, aucune activation partielle | NON EXÉCUTÉ |
 
-**Bloquants avant écriture** : accès API réel non démontré; identification flash RDID/capacité/partitionnement non démontrée; pas de firmware A/B prêt ni signature de test produite; aucune sauvegarde privée complète vérifiée; pas de mécanisme d'observation durable version + slot + état OTA exposé via HTTPS. Proposer au besoin une route diagnostique read-only authentifiée ou des marqueurs UART structurés avec relecture des métadonnées; documenter précisément leur provenance.
+**Bloquants avant écriture** : accès API réel non démontré; identification flash RDID/capacité/partitionnement non démontrée; pas de firmware A/B prêt ni signature de test produite; aucune sauvegarde privée complète vérifiée; diagnostic HTTPS ajouté sous feature qualification (build + MAC + slot + BOOT v2), restant à qualifier sur C3; OTM1 décodé séparément dans les recettes depuis la flash. Proposer au besoin une route diagnostique read-only authentifiée ou des marqueurs UART structurés avec relecture des métadonnées; documenter précisément leur provenance.
 
 ## Autorisation à recueillir après préparation, avant première écriture
 
