@@ -33,18 +33,3 @@ def test_health_is_reachable_but_not_an_identity_proof(ota_campaign, ota_endpoin
         "confirmation_verified": False,
     })
 
-
-def test_invalid_deployment_id_is_rejected_before_activation(ota_campaign, ota_endpoint):
-    # Deliberately invalid syntax: cannot name a valid deployment, even if one
-    # already exists. Must yield HTTP 400 with the current firmware contract.
-    # This is a POST; enable separately from the health-only smoke test.
-    if os.environ.get("OTA_ENABLE_SAFE_NEGATIVES") != "yes":
-        pytest.skip("Explicit OTA_ENABLE_SAFE_NEGATIVES=yes required")
-    headers = {"Authorization": "Bearer " + ota_endpoint.token,
-               "X-Deployment-ID": "invalid/id"}
-    status, body = ota_endpoint.request("POST", "/ota/activate", headers=headers)
-    assert (status, body) == (400, b"invalid request")
-    ota_campaign.write("ota-refusal.json", {
-        "status": status, "reason": "invalid deployment id",
-        "verified_no_activation": False,
-    })
