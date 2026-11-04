@@ -164,6 +164,7 @@ def test_activate_and_confirm_from_independently_staged_image(
         "baseline_build": before["build_id"],
         "candidate_slot": target_slot,
         "candidate_digest": plan["candidate_sha256"],
+        "manifest_sha256": digest(plan["candidate_manifest"]),
         "approved_snapshot_sha256": plan["pre_activation_sha256"],
     })
 
