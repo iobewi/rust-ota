@@ -72,7 +72,7 @@ def approved_stage():
     return plan
 
 
-def _diagnostic(client, *, build, chip, timeout=45):
+def _diagnostic(client, *, build, chip, mac, timeout=45):
     """GET-only bounded wait after bench loader returns to the application."""
     end = time.monotonic() + timeout
     last = None
@@ -81,7 +81,8 @@ def _diagnostic(client, *, build, chip, timeout=45):
             status, body = client.diagnostic()
             if status != 200:
                 raise AssertionError(f"Diagnostic HTTP status {status}")
-            return validate_diagnostic(body, expected_build=build, expected_mcu=chip)
+            return validate_diagnostic(body, expected_build=build, expected_mcu=chip,
+                                       expected_mac=mac)
         except OtaTransportUncertain as error:
             last = type(error).__name__
             time.sleep(1)
@@ -122,7 +123,8 @@ def test_staged_image_readback_without_activation(approved_stage, ota_campaign):
 
     app = OtaHttp(os.environ["OTA_HTTPS_ORIGIN"],
                   os.environ["OTA_CA_FILE"], token, timeout=120)
-    before = _diagnostic(app, build=plan["baseline_build_id"], chip=plan["mcu"])
+    before = _diagnostic(app, build=plan["baseline_build_id"], chip=plan["mcu"],
+                         mac=identity["mac"])
     inactive = 1 - before["running_slot"]
     target = plan[f"slot_{inactive}"]
     image_size = Path(plan["image_file"]).stat().st_size
