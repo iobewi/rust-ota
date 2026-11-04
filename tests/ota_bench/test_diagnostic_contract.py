@@ -58,7 +58,8 @@ def test_malformed_or_unconfirmed_metadata_is_not_pass(entry):
 
 def test_invalid_json_is_not_silently_accepted():
     with pytest.raises(json.JSONDecodeError):
-        validate_diagnostic(b"{", expected_build="ota-A-001", expected_mcu="esp32c3")
+        validate_diagnostic(b"{", expected_build="ota-A-001", expected_mcu="esp32c3",
+                            expected_mac="02:01:23:45:67:89")
 
 
 def test_missing_expected_build_is_not_an_opt_out():
