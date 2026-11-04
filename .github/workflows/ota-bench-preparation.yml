@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
 
+# Only the latest preparation revision needs a full build; older runs are not
+# evidence of the current HEAD and otherwise saturate the CI queue.
+concurrency:
+  group: ota-bench-preparation-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   offline-pytest:
     name: Offline pytest contracts
