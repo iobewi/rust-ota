@@ -1,7 +1,7 @@
 //! Reference composition: one request owns one reservation and one write engine.
-use alloc::string::String;
 #[cfg(feature = "qualification-diagnostics")]
 use alloc::format;
+use alloc::string::String;
 use embassy_executor::Spawner;
 use embassy_net::StackResources;
 use embassy_sync::{blocking_mutex::raw::NoopRawMutex, mutex::Mutex};
@@ -633,7 +633,7 @@ struct Diagnostic<'a, S> {
 
 #[cfg(feature = "qualification-diagnostics")]
 fn diagnostic_record(raw: &[u8; 32]) -> String {
-    use iobewi_firmware_boot::{decode, Decoded};
+    use iobewi_firmware_boot::{Decoded, decode};
     match decode(raw) {
         Decoded::Blank => String::from("{\"kind\":\"Blank\"}"),
         Decoded::Corrupt => String::from("{\"kind\":\"Corrupt\"}"),
@@ -654,14 +654,21 @@ impl<S: MetadataStore> RequestHandlerService for Diagnostic<'_, S> {
         response_writer: W,
     ) -> Result<ResponseSent, W::Error> {
         let token = iobewi_http_server::auth::bearer_token(
-            request.parts.headers().get("authorization").and_then(|v| v.as_str().ok())
+            request
+                .parts
+                .headers()
+                .get("authorization")
+                .and_then(|v| v.as_str().ok()),
         );
         if !iobewi_firmware_auth::maintenance::token_matches(
-            TOKEN.as_bytes(), Some(token.as_bytes())
+            TOKEN.as_bytes(),
+            Some(token.as_bytes()),
         ) {
             return example_firmware_ota_system::maintenance_http::reject_unauthorized(
-                request, response_writer
-            ).await;
+                request,
+                response_writer,
+            )
+            .await;
         }
         // Preserve the normal one-request-per-connection lifecycle.
         let body = {
@@ -671,10 +678,14 @@ impl<S: MetadataStore> RequestHandlerService for Diagnostic<'_, S> {
                     let first = diagnostic_record(&entries[0]);
                     let second = diagnostic_record(&entries[1]);
                     let build = env!("IOBEWI_OTA_QUALIFICATION_ID");
-                    let mcu = if cfg!(feature = "esp32c3") { "esp32c3" } else { "esp32s3" };
+                    let mcu = if cfg!(feature = "esp32c3") {
+                        "esp32c3"
+                    } else {
+                        "esp32s3"
+                    };
                     // Match the station MAC to independent bench identify().
                     let mac = esp_hal::efuse::interface_mac_address(
-                        esp_hal::efuse::InterfaceMacAddress::Station
+                        esp_hal::efuse::InterfaceMacAddress::Station,
                     );
                     let m = mac.as_bytes();
                     let station_mac = format!(
@@ -688,8 +699,12 @@ impl<S: MetadataStore> RequestHandlerService for Diagnostic<'_, S> {
                 }
                 Err(_) => {
                     let connection = request.body_connection.finalize().await?;
-                    return (StatusCode::SERVICE_UNAVAILABLE, "boot observation unavailable")
-                        .write_to(connection, response_writer).await;
+                    return (
+                        StatusCode::SERVICE_UNAVAILABLE,
+                        "boot observation unavailable",
+                    )
+                    .write_to(connection, response_writer)
+                    .await;
                 }
             }
         };
