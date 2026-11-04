@@ -635,10 +635,10 @@ struct Diagnostic<'a, S> {
 fn diagnostic_record(raw: &[u8; 32]) -> String {
     use iobewi_firmware_boot::{decode, Decoded};
     match decode(raw) {
-        Decoded::Blank => String::from("{\\"kind\\":\\"Blank\\"}"),
-        Decoded::Corrupt => String::from("{\\"kind\\":\\"Corrupt\\"}"),
+        Decoded::Blank => String::from("{\"kind\":\"Blank\"}"),
+        Decoded::Corrupt => String::from("{\"kind\":\"Corrupt\"}"),
         Decoded::Ok(entry) => format!(
-            "{{\\"kind\\":\\"Ok\\",\\"sequence\\":{},\\"state\\":{}}}",
+            "{{\"kind\":\"Ok\",\"sequence\":{},\"state\":{}}}",
             entry.seq, entry.state
         ),
     }
@@ -673,7 +673,7 @@ impl<S: MetadataStore> RequestHandlerService for Diagnostic<'_, S> {
                     let build = env!("IOBEWI_OTA_QUALIFICATION_ID");
                     let mcu = if cfg!(feature = "esp32c3") { "esp32c3" } else { "esp32s3" };
                     format!(
-                        "{{\\"schema\\":1,\\"build_id\\":{:?},\\"mcu\\":{:?},\\"running_slot\\":{},\\"boot_entries\\":[{},{}],\\"otm1_observed\\":false,\\"image_authenticated\\":false}}",
+                        "{{\"schema\":1,\"build_id\":{:?},\"mcu\":{:?},\"running_slot\":{},\"boot_entries\":[{},{}],\"otm1_observed\":false,\"image_authenticated\":false}}",
                         build, mcu, slot, first, second
                     )
                 }
