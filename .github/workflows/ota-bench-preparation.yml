@@ -23,7 +23,7 @@ jobs:
           python -m pip install 'git+https://github.com/iobewi/rust_dev.git@54c69ecc2bbbbd95d682301a8017e18ccb371a51#subdirectory=bench/python' pytest
       - name: Run offline contracts (no --bench)
         run: |
-          python -m pytest tests/ota_bench/test_http_contract.py tests/ota_bench/test_http_transport.py tests/ota_bench/test_upload_preparation.py tests/ota_bench/test_boot_metadata.py tests/ota_bench/test_boot_transitions.py tests/ota_bench/test_diagnostic_contract.py tests/ota_bench/test_approval_guards.py -q
+          python -m pytest tests/ota_bench/test_http_contract.py tests/ota_bench/test_http_transport.py tests/ota_bench/test_upload_preparation.py tests/ota_bench/test_boot_metadata.py tests/ota_bench/test_boot_transitions.py tests/ota_bench/test_diagnostic_contract.py tests/ota_bench/test_ota_meta.py tests/ota_bench/test_approval_guards.py tests/ota_bench/test_activation_guards.py -q
       - name: Verify hardware recipes safely skip without explicit --bench
         run: |
           python -m pytest tests/ota_bench -q
