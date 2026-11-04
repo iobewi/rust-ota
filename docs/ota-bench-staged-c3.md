@@ -56,6 +56,7 @@ Les valeurs ci-dessous sont des exemples de profil, pas des mesures matérielles
   "manifest_file": "/private/ota/B/app.manifest",
   "deployment_id": "qualification-B-001",
   "baseline_build_id": "qualification-A-001",
+  "ota_meta_offset": 61440,
   "slot_0": {"offset": 131072, "size": 1572864},
   "slot_1": {"offset": 1703936, "size": 1572864}
 }
@@ -98,11 +99,11 @@ python -m pytest tests/ota_bench/test_staged_image.py --bench \
 La recette enregistre les diagnostics séparément des secrets. Le POST HTTPS
 n'est jamais rejoué, même si l'accusé de réception est perdu.
 
-Un `200 staged` + relecture indépendante intégrale des octets de B prouve
-la réception et la cohérence binaire observées pour cet essai.
-Ce verdict **ne prouve ni l'activation de B, ni la confirmation durable, ni
-la publication OTM1 indépendamment décodée**. Ces vérifications doivent
-avoir des tests et preuves distincts.
+Un `200 staged` + relecture indépendante des octets de B et décodage de la
+trame OTSF/OTM1 `Written` (SHA-256, slot et deployment ID) apportent une
+preuve de publication durable observée. Ce verdict **ne prouve ni
+l'activation de B, ni sa confirmation**, ni l'authenticité matérielle de la
+signature ou du boot. Ces vérifications ont des tests distincts.
 
 Le retour console après les lectures flash peut entraîner un redémarrage :
 ne pas confondre cette observation avec un succès de boot OTA.
