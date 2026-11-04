@@ -14,10 +14,12 @@ Le client du banc provient de rust_dev PR #4, SHA `54c69ecc2bbbbd95d682301a8017e
 - `tests/ota_bench/ota_meta.py` et `test_ota_meta.py` : décodage indépendant OTSF/OTM1 (deux copies, CRC, séquence, état transactionnel) et corruption/coupure simulée.
 - `tests/ota_bench/test_staged_image.py` : staging sous accord précis, preuve par relecture de l'image et OTM1 `Written`.
 - `tests/ota_bench/test_activation.py` : activation sous accord distinct et observation BOOT v2 + OTM1 finalisé et régions préservées.
+- `tests/ota_bench/refusal_assertions.py`, `test_refusal_assertions.py` et `test_diagnostic_security.py` : assertions de refus HTTP exact et contrôle d'accès GET authentifié en lecture seule.
+- `tests/ota_bench/rollback_proof.py`, `test_rollback_proof.py`, `test_rollback_capture.py`, `test_rollback_capture_contract.py` : preuves de rollback depuis snapshots BOOT/OTM1 + identité runtime, validées hors matériel.
 - `tests/ota_bench/boot_transitions.py` et `test_boot_transitions.py` : assertions hôte A→B→A, conservation du repli Valid, absence de probation résiduelle et rejet Aborted/Invalid.
 - `tests/ota_bench/test_boot_snapshot.py` : lecture de `otadata` via le banc avec offset explicite, vérification du format et collecte privée SHA-256.
 - `tests/ota_bench/test_upload_preparation.py` : tests hôte de la vérification locale des images/manifests, avant transport.
-- `tests/ota_bench/test_http_readonly.py` : GET /health et refus syntaxique d'activation. Ce dernier exige `OTA_ENABLE_SAFE_NEGATIVES=yes` car il émet un POST applicatif.
+- `tests/ota_bench/test_http_readonly.py` : contrôle GET /health uniquement. L'ancien POST négatif non accompagné d'un plan d'approbation complet a été retiré.
 
 ## Exécution
 
@@ -53,7 +55,8 @@ Pour un contrôle HTTPS en lecture seule, renseigner `OTA_HTTPS_ORIGIN`, `OTA_CA
 | Activation / probation / confirmation | oui, chemin nominal gardé et relecture durable | NON EXÉCUTÉ |
 | Alternance A-B-A | non | NON EXÉCUTÉ |
 | Refus post-écriture / interruption | non | NON EXÉCUTÉ |
-| Rollback et coupure | non | NON EXÉCUTÉ |
+| Rollback sur snapshots déjà capturés | oui, analyse forensique hors matériel | NON EXÉCUTÉ |
+| Injection matérielle rollback / coupure | non, plan et images de défaut requis | NON EXÉCUTÉ |
 
 ## Préconditions au prochain chantier
 
@@ -71,3 +74,18 @@ L'adaptateur HTTPS envoie désormais des blocs de 2048 octets. Il vérifie le SH
 Le diagnostic du firmware expose la MAC station lue par ESP-HAL; pytest la compare à la MAC issue d'`identify` par le banc. Le décodage BOOT v2 seul ne prouve pas la transaction OTM1; celle-ci est décodée séparément depuis les deux copies OTSF avec CRC.
 
 **Validation** : fichiers publiés sur la branche, mais non exécutés depuis cette session (accès GitHub indisponible depuis l'environnement Python local). Ne pas annoncer PASS, même pour les tests hôte, avant exécution/CI exacte.
+
+## Sécurité des scénarios de refus
+
+La requête physique `POST /ota/activate` avec identifiant invalide n'est plus
+exécutée sur simple variable d'environnement. Les échecs HTTP sont vérifiés
+hors matériel avec des assertions exactes. Un vrai essai POST négatif exigera
+un plan approuvé, des sauvegardes et deux relectures persistantes.
+
+La route `GET /ota/diagnostic` sans jeton est testable sur matériel, avec
+contrôle du 401 et de la stabilité des entrées BOOT observées. Un 401 ou une
+MAC conforme ne prouve pas l'absence totale d'écritures flash.
+
+La CI dédiée active désormais l'annulation des anciens runs de cette branche
+pour concentrer les ressources sur le dernier commit. Verdicts et preuves
+restent attachés au SHA effectivement exécuté.
