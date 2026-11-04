@@ -6,7 +6,8 @@ from diagnostic import validate_diagnostic
 
 def sample():
     return {
-        "schema": 1, "build_id": "ota-A-001", "mcu": "esp32c3",
+        "schema": 2, "build_id": "ota-A-001", "mcu": "esp32c3",
+        "station_mac": "02:01:23:45:67:89",
         "running_slot": 0,
         "boot_entries": [
             {"kind": "Ok", "sequence": 1, "state": 2},
@@ -18,7 +19,8 @@ def sample():
 
 def validate(payload):
     return validate_diagnostic(json.dumps(payload).encode(),
-                               expected_build="ota-A-001", expected_mcu="esp32c3")
+                               expected_build="ota-A-001", expected_mcu="esp32c3",
+                               expected_mac="02:01:23:45:67:89")
 
 
 def test_valid_diagnostic_maps_runtime_to_valid_entry():
@@ -29,7 +31,7 @@ def test_valid_diagnostic_maps_runtime_to_valid_entry():
 
 
 @pytest.mark.parametrize("key,wrong", [
-    ("schema", 2), ("build_id", "ota-B-002"), ("mcu", "esp32s3"),
+    ("schema", 1), ("build_id", "ota-B-002"), ("mcu", "esp32s3"), ("station_mac", "11:22:33:44:55:66"),
     ("running_slot", 1), ("running_slot", "0"),
     ("otm1_observed", True), ("image_authenticated", True),
 ])
@@ -62,4 +64,5 @@ def test_invalid_json_is_not_silently_accepted():
 def test_missing_expected_build_is_not_an_opt_out():
     with pytest.raises(ValueError, match="mandatory"):
         validate_diagnostic(json.dumps(sample()).encode(),
-                            expected_build="", expected_mcu="esp32c3")
+                            expected_build="", expected_mcu="esp32c3",
+                            expected_mac="02:01:23:45:67:89")
