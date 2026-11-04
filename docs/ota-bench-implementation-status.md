@@ -68,6 +68,6 @@ Ne pas ajouter de tests OTA destructifs prétendant qualifier la publication ou 
 
 L'adaptateur HTTPS envoie désormais des blocs de 2048 octets. Il vérifie le SHA-256 du fichier avant l'envoi et requiert `expected_sha256` et `max_bytes` issus de la préparation autorisée. Il re-hashe les octets émis. Tout transport indéterminé reste une erreur fatale sans retry. Le résultat HTTP `200 staged` est une publication déclarée, pas une preuve d'exécution ou de confirmation.
 
-Le décodeur BOOT v2 n'est pas un interprète OTM1, n'authentifie pas l'image et n'observe pas le slot réellement exécuté. Ses rapports doivent donc afficher ces trois limites.
+Le diagnostic du firmware expose la MAC station lue par ESP-HAL; pytest la compare à la MAC issue d'`identify` par le banc. Le décodage BOOT v2 seul ne prouve pas la transaction OTM1; celle-ci est décodée séparément depuis les deux copies OTSF avec CRC.
 
 **Validation** : fichiers publiés sur la branche, mais non exécutés depuis cette session (accès GitHub indisponible depuis l'environnement Python local). Ne pas annoncer PASS, même pour les tests hôte, avant exécution/CI exacte.
