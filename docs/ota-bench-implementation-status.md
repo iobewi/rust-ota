@@ -1,0 +1,60 @@
+# Développement des recettes OTA avec le banc — état de la branche
+
+Référence: rust-ota `main` à `20d8a6601664b746c914fc887c67d712efe50b2a`.
+Le client du banc provient de rust_dev PR #4, SHA `54c69ecc2bbbbd95d682301a8017e18ccb371a51`.
+
+## Fichiers
+
+- `tests/ota_bench/conftest.py` : fixture de qualification intégrant `Campaign` (précontrôle, provenance, cleanup).
+- `tests/ota_bench/test_preflight.py` : identification MCU et lecture conditionnelle de la table de partitions.
+- `tests/ota_bench/ota_http.py` : adaptateur applicatif HTTPS minimal à usage de recette. Aucun accès série, aucun retry, erreurs de transport indéterminées distinctes d'un refus HTTP.
+- `tests/ota_bench/test_http_contract.py` : tests hôte des entêtes et identifiants/protocoles.
+- `tests/ota_bench/test_upload_preparation.py` : tests hôte de la vérification locale des images/manifests, avant transport.
+- `tests/ota_bench/test_http_readonly.py` : GET /health et refus syntaxique d'activation. Ce dernier exige `OTA_ENABLE_SAFE_NEGATIVES=yes` car il émet un POST applicatif.
+
+## Exécution
+
+Installer le paquet `bench/python[pytest]` depuis le SHA exact de la PR #4. Avec la branche de rust-ota cochée :
+
+```sh
+# Tests locaux sans --bench, sans connexion physique :
+python -m pytest tests/ota_bench/test_http_contract.py tests/ota_bench/test_upload_preparation.py -q
+
+# Collecte et skip des tests matériels (incluant précontrôle) :
+python -m pytest tests/ota_bench -q
+```
+
+Les imports `ota_http` sont volontairement locaux au dossier pytest. Les rapports et dumps doivent être conservés hors Git. **Ce document décrit des recettes créées, pas un résultat d'exécution.**
+
+Pour le banc réel, l'exemple `bench/docs/pytest.md` reste la référence. Définir `BENCH_URL`, `BENCH_DEVICE` et `BENCH_CLIENT_TOKEN` de manière privée, et lancer sélectivement les tests avec `--bench`. La lecture de partitions exige une adresse explicitement vérifiée via `OTA_PARTITION_TABLE_OFFSET`. Aucun flash write n'existe encore dans cette première tranche.
+
+Pour un contrôle HTTPS en lecture seule, renseigner `OTA_HTTPS_ORIGIN`, `OTA_CA_FILE`, `IOBEWI_OTA_TOKEN` et lancer uniquement `-k health_is_reachable`. Le firmware de référence ne publie qu'un corps `ok` : cela **ne prouve ni l'identité de l'image ni l'état OTA**.
+
+## Couverture réelle
+
+| Cas | Présence d'une recette | Preuve sur carte |
+| --- | --- | --- |
+| Identification API et état préliminaire | oui, nécessitant --bench | NON EXÉCUTÉ |
+| Partitions | oui, avec offset explicite | NON EXÉCUTÉ |
+| Contrat HTTP local | oui, tests hôte | NON EXÉCUTÉ |
+| Hash candidat/manifeste local | oui, tests hôte | NON EXÉCUTÉ |
+| /health TLS | oui, sans identité OTA | NON EXÉCUTÉ |
+| Refus d'ID invalide | oui, POST explicitement opt-in | NON EXÉCUTÉ |
+| Upload signé et publication durable | non | NON EXÉCUTÉ |
+| Activation / probation / confirmation | non | NON EXÉCUTÉ |
+| Alternance A-B-A | non | NON EXÉCUTÉ |
+| Refus post-écriture / interruption | non | NON EXÉCUTÉ |
+| Rollback et coupure | non | NON EXÉCUTÉ |
+
+## Préconditions au prochain chantier
+
+Ne pas ajouter de tests OTA destructifs prétendant qualifier la publication ou le rollback sans :
+
+1. observation durable de l'identité, du slot et des états OTM1/boot ;
+2. géométrie de la C3 réellement identifiée et validée ;
+3. sauvegarde de la flash complète et plan de restauration cohérent avec le transport réel ;
+4. images A/B et enveloppes produites et hashées ;
+5. liste de plages à modifier et approbation de l'opérateur avant toute écriture ;
+6. périmètre distinct approuvé pour les coupures pendant programmation.
+
+Note : l'adaptateur HTTPS actuel lit l'image en mémoire avec un plafond temporaire de 2 MiB. Avant une campagne complète, choisir explicitement l'envoi par chunks de l'exemple de référence, sans retry automatique et sans masquer les réponses perdues.
