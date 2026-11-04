@@ -25,6 +25,7 @@ def _valid_plan(tmp_path):
         "schema": 1, "scope": "ota.stage-and-readback",
         "device": "esp32-local", "mcu": "esp32c3",
         "flash_size": 4 * 1024 * 1024, "table_offset": 0x8000,
+        "ota_meta_offset": 0xf000,
         "backup_file": str(flash), "backup_sha256": digest(flash),
         "image_file": str(image), "image_sha256": digest(image),
         "manifest_file": str(manifest), "deployment_id": "qual-B-01",
