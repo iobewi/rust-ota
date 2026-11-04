@@ -70,7 +70,7 @@ def approved_activation():
     return plan
 
 
-def wait_diagnostic(client, expected_build, expected_mcu, *, timeout=90):
+def wait_diagnostic(client, expected_build, expected_mcu, expected_mac, *, timeout=90):
     """Safe bounded GET-only polling; never replays activation."""
     end = time.monotonic() + timeout
     last = "not reached"
@@ -82,7 +82,8 @@ def wait_diagnostic(client, expected_build, expected_mcu, *, timeout=90):
                 # During controlled reset the old A can still respond briefly.
                 if result.get("build_id") == expected_build:
                     return validate_diagnostic(
-                        body, expected_build=expected_build, expected_mcu=expected_mcu
+                        body, expected_build=expected_build, expected_mcu=expected_mcu,
+                        expected_mac=expected_mac
                     )
                 last = "other build observed"
             else:
@@ -132,7 +133,7 @@ def test_activate_and_confirm_from_independently_staged_image(
     assert_no_unconfirmed_new_selection(old_meta)
     board.renew(ttl=3600)
 
-    before = wait_diagnostic(app, plan["baseline_build_id"], plan["mcu"])
+    before = wait_diagnostic(app, plan["baseline_build_id"], plan["mcu"], identity["mac"])
     old_slot = before["running_slot"]
     target_slot = 1 - old_slot
     part = plan[f"slot_{target_slot}"]
@@ -177,7 +178,7 @@ def test_activate_and_confirm_from_independently_staged_image(
         f"Activation not acknowledged: HTTP {status}"
     )
 
-    after = wait_diagnostic(app, plan["candidate_build_id"], plan["mcu"])
+    after = wait_diagnostic(app, plan["candidate_build_id"], plan["mcu"], identity["mac"])
     assert after["running_slot"] == target_slot, "Candidate did not become running image"
     # A newly created reservation must bind the current epoch and generation.
     board_after = ota_campaign.reserve(ttl=3600)
