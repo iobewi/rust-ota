@@ -11,7 +11,7 @@ Les préconditions doivent être vérifiées avant de demander l'autorisation :
 - C3 réelle, capacité flash confirmée, table de partitions observée.
 - A actuellement `Valid`, B intégralement écrite et signée conformément au
   profil effectivement actif.
-- Diagnostic `qualification-diagnostics` présent dans A et B, identifiants
+- Diagnostic `qualification-diagnostics` présent dans A et B, MAC station égale à celle observée via le banc et identifiants
   de builds distincts et attendus.
 - Jeton de maintenance et identité TLS compatibles entre A et B.
 - Image B et manifeste IAM1 privés, approuvés et SHA-256 vérifiés.
@@ -102,9 +102,10 @@ nouvellement autorisée, ni effacer le fallback confirmé.
 - Les relectures indépendantes `otadata` et `ota_meta` fournissent les deux
   observations durables BOOT v2 et OTSF/OTM1, avec contrôle CRC et ordre de
   génération. Ces CRC ne constituent pas une authentification cryptographique.
-- L'association entre l'origine HTTPS et le port physique du banc demande
-  une vérification d'identité supplémentaire; un `mcu=esp32c3` commun ne
-  suffit pas.
+- L'association HTTPS ↔ port physique exige la comparaison exacte des MAC
+  station observées par le firmware et par `identify` au travers du banc.
+  Cette correspondance est une identité matérielle de qualification, pas une
+  racine de confiance cryptographique contre un firmware compromis.
 - Ni un PASS hôte ni le succès du build C3 ne constituent une campagne
   matérielle. Les scénarios de coupure, hang-self-check et corruption
   nécessitent des recettes et autorisations dédiées.
