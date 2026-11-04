@@ -11,6 +11,9 @@ Le client du banc provient de rust_dev PR #4, SHA `54c69ecc2bbbbd95d682301a8017e
 - `tests/ota_bench/test_http_contract.py` : tests hôte des entêtes et identifiants/protocoles.
 - `tests/ota_bench/test_http_transport.py` : transport adversarial sans retry et bornage des réponses.
 - `tests/ota_bench/boot_metadata.py` et `test_boot_metadata.py` : décodeur BOOT v2 avec vecteurs indépendants, contrôles CRC/commit et injections de corruption.
+- `tests/ota_bench/ota_meta.py` et `test_ota_meta.py` : décodage indépendant OTSF/OTM1 (deux copies, CRC, séquence, état transactionnel) et corruption/coupure simulée.
+- `tests/ota_bench/test_staged_image.py` : staging sous accord précis, preuve par relecture de l'image et OTM1 `Written`.
+- `tests/ota_bench/test_activation.py` : activation sous accord distinct et observation BOOT v2 + OTM1 finalisé et régions préservées.
 - `tests/ota_bench/boot_transitions.py` et `test_boot_transitions.py` : assertions hôte A→B→A, conservation du repli Valid, absence de probation résiduelle et rejet Aborted/Invalid.
 - `tests/ota_bench/test_boot_snapshot.py` : lecture de `otadata` via le banc avec offset explicite, vérification du format et collecte privée SHA-256.
 - `tests/ota_bench/test_upload_preparation.py` : tests hôte de la vérification locale des images/manifests, avant transport.
@@ -46,8 +49,8 @@ Pour un contrôle HTTPS en lecture seule, renseigner `OTA_HTTPS_ORIGIN`, `OTA_CA
 | BOOT v2: format et corruption | oui, tests hôte + capture flash opt-in | NON EXÉCUTÉ |
 | BOOT v2: transitions nominales/rollback | assertions hôte sur snapshots, sans identité runtime | NON EXÉCUTÉ |
 | Refus d'ID invalide | oui, POST explicitement opt-in | NON EXÉCUTÉ |
-| Upload signé et publication durable | non | NON EXÉCUTÉ |
-| Activation / probation / confirmation | non | NON EXÉCUTÉ |
+| Upload signé et publication durable | oui, staging gardé et relecture OTSF/OTM1 | NON EXÉCUTÉ |
+| Activation / probation / confirmation | oui, chemin nominal gardé et relecture durable | NON EXÉCUTÉ |
 | Alternance A-B-A | non | NON EXÉCUTÉ |
 | Refus post-écriture / interruption | non | NON EXÉCUTÉ |
 | Rollback et coupure | non | NON EXÉCUTÉ |
