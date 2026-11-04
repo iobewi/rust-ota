@@ -672,9 +672,18 @@ impl<S: MetadataStore> RequestHandlerService for Diagnostic<'_, S> {
                     let second = diagnostic_record(&entries[1]);
                     let build = env!("IOBEWI_OTA_QUALIFICATION_ID");
                     let mcu = if cfg!(feature = "esp32c3") { "esp32c3" } else { "esp32s3" };
+                    // Match the station MAC to independent bench identify().
+                    let mac = esp_hal::efuse::interface_mac_address(
+                        esp_hal::efuse::InterfaceMacAddress::Station
+                    );
+                    let m = mac.as_bytes();
+                    let station_mac = format!(
+                        "{:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
+                        m[0], m[1], m[2], m[3], m[4], m[5]
+                    );
                     format!(
-                        "{{\"schema\":1,\"build_id\":{:?},\"mcu\":{:?},\"running_slot\":{},\"boot_entries\":[{},{}],\"otm1_observed\":false,\"image_authenticated\":false}}",
-                        build, mcu, slot, first, second
+                        "{{\"schema\":2,\"build_id\":{:?},\"mcu\":{:?},\"station_mac\":{:?},\"running_slot\":{},\"boot_entries\":[{},{}],\"otm1_observed\":false,\"image_authenticated\":false}}",
+                        build, mcu, station_mac, slot, first, second
                     )
                 }
                 Err(_) => {
