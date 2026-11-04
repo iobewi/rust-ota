@@ -47,6 +47,7 @@ Les offsets ci-dessous illustrent le profil 4 Mio; ne pas les supposer exacts :
   "candidate_manifest": "/private/ota/B/app.manifest",
   "deployment_id": "qualification-B-001",
   "otadata_offset": 53248,
+  "ota_meta_offset": 61440,
   "slot_0": {"offset": 131072, "size": 1572864},
   "slot_1": {"offset": 1703936, "size": 1572864},
   "preserved_regions": [
@@ -80,7 +81,9 @@ Il n'envoie **qu'un seul** `/ota/activate`, jamais rejoué automatiquement.
 Il attend ensuite l'identité de B par HTTPS. Après sa confirmation, il
 acquiert une nouvelle réservation liée à la génération courante, relit
 `otadata`, vérifie le passage durable à `Valid` et la conservation du
-fallback confirmé A. Les régions préservées sont également comparées au
+fallback confirmé A. Il relit séparément les deux copies OTSF de `ota_meta`,
+exige que l'état de staging soit `None` et que l'identité/digest du déploiement
+confirmé ait été promue. Les régions préservées sont également comparées au
 snapshot antérieur.
 
 Si l'opération entraîne un changement d'epoch, une rupture de preuve ou
@@ -96,9 +99,9 @@ nouvellement autorisée, ni effacer le fallback confirmé.
 
 - Le diagnostic vérifie la correspondance entre l'identité du binaire en
   cours et l'entrée BOOT v2 `Valid`, mais **n'authentifie pas** la signature.
-- Une relecture `otadata` prouve la persistance BOOT v2 observée; le format
-  OTM1 doit être décodé séparément pour une preuve indépendante de
-  publication/finalisation.
+- Les relectures indépendantes `otadata` et `ota_meta` fournissent les deux
+  observations durables BOOT v2 et OTSF/OTM1, avec contrôle CRC et ordre de
+  génération. Ces CRC ne constituent pas une authentification cryptographique.
 - L'association entre l'origine HTTPS et le port physique du banc demande
   une vérification d'identité supplémentaire; un `mcu=esp32c3` commun ne
   suffit pas.
