@@ -9,6 +9,9 @@ Le client du banc provient de rust_dev PR #4, SHA `54c69ecc2bbbbd95d682301a8017e
 - `tests/ota_bench/test_preflight.py` : identification MCU et lecture conditionnelle de la table de partitions.
 - `tests/ota_bench/ota_http.py` : adaptateur applicatif HTTPS minimal à usage de recette. Aucun accès série, aucun retry, erreurs de transport indéterminées distinctes d'un refus HTTP.
 - `tests/ota_bench/test_http_contract.py` : tests hôte des entêtes et identifiants/protocoles.
+- `tests/ota_bench/test_http_transport.py` : transport adversarial sans retry et bornage des réponses.
+- `tests/ota_bench/boot_metadata.py` et `test_boot_metadata.py` : décodeur BOOT v2 avec vecteurs indépendants, contrôles CRC/commit et injections de corruption.
+- `tests/ota_bench/test_boot_snapshot.py` : lecture de `otadata` via le banc avec offset explicite, vérification du format et collecte privée SHA-256.
 - `tests/ota_bench/test_upload_preparation.py` : tests hôte de la vérification locale des images/manifests, avant transport.
 - `tests/ota_bench/test_http_readonly.py` : GET /health et refus syntaxique d'activation. Ce dernier exige `OTA_ENABLE_SAFE_NEGATIVES=yes` car il émet un POST applicatif.
 
@@ -39,6 +42,7 @@ Pour un contrôle HTTPS en lecture seule, renseigner `OTA_HTTPS_ORIGIN`, `OTA_CA
 | Contrat HTTP local | oui, tests hôte | NON EXÉCUTÉ |
 | Hash candidat/manifeste local | oui, tests hôte | NON EXÉCUTÉ |
 | /health TLS | oui, sans identité OTA | NON EXÉCUTÉ |
+| BOOT v2: format et corruption | oui, tests hôte + capture flash opt-in | NON EXÉCUTÉ |
 | Refus d'ID invalide | oui, POST explicitement opt-in | NON EXÉCUTÉ |
 | Upload signé et publication durable | non | NON EXÉCUTÉ |
 | Activation / probation / confirmation | non | NON EXÉCUTÉ |
@@ -57,4 +61,8 @@ Ne pas ajouter de tests OTA destructifs prétendant qualifier la publication ou 
 5. liste de plages à modifier et approbation de l'opérateur avant toute écriture ;
 6. périmètre distinct approuvé pour les coupures pendant programmation.
 
-Note : l'adaptateur HTTPS actuel lit l'image en mémoire avec un plafond temporaire de 2 MiB. Avant une campagne complète, choisir explicitement l'envoi par chunks de l'exemple de référence, sans retry automatique et sans masquer les réponses perdues.
+L'adaptateur HTTPS envoie désormais des blocs de 2048 octets. Il vérifie le SHA-256 du fichier avant l'envoi et requiert `expected_sha256` et `max_bytes` issus de la préparation autorisée. Il re-hashe les octets émis. Tout transport indéterminé reste une erreur fatale sans retry. Le résultat HTTP `200 staged` est une publication déclarée, pas une preuve d'exécution ou de confirmation.
+
+Le décodeur BOOT v2 n'est pas un interprète OTM1, n'authentifie pas l'image et n'observe pas le slot réellement exécuté. Ses rapports doivent donc afficher ces trois limites.
+
+**Validation** : fichiers publiés sur la branche, mais non exécutés depuis cette session (accès GitHub indisponible depuis l'environnement Python local). Ne pas annoncer PASS, même pour les tests hôte, avant exécution/CI exacte.
