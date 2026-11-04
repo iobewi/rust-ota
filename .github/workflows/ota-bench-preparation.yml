@@ -1,0 +1,47 @@
+name: OTA bench preparation
+
+on:
+  push:
+    branches:
+      - test/ota-bench-pytest-preparation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-pytest:
+    name: Offline pytest contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bench API client pinned to the unmerged PR
+        run: |
+          python -m pip install 'git+https://github.com/iobewi/rust_dev.git@54c69ecc2bbbbd95d682301a8017e18ccb371a51#subdirectory=bench/python' pytest
+      - name: Run offline contracts (no --bench)
+        run: |
+          python -m pytest tests/ota_bench/test_http_contract.py tests/ota_bench/test_http_transport.py tests/ota_bench/test_upload_preparation.py tests/ota_bench/test_boot_metadata.py tests/ota_bench/test_boot_transitions.py tests/ota_bench/test_diagnostic_contract.py -q
+      - name: Collect hardware tests without connecting to the bench
+        run: |
+          python -m pytest tests/ota_bench --collect-only -q
+
+  c3-qualification-build:
+    name: ESP32-C3 qualification diagnostics compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: riscv32imc-unknown-none-elf
+          components: rust-src
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile C3 app with read-only qualification diagnostics
+        env:
+          IOBEWI_OTA_QUALIFICATION_ID: ci-c3-probe
+        run: |
+          cargo +nightly build -Z build-std=core,alloc --target riscv32imc-unknown-none-elf -p example-firmware-ota-system --features esp32c3,qualification-diagnostics --bins --release
