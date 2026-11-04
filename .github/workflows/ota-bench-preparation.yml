@@ -43,6 +43,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Verify Rust formatting
+        run: cargo +nightly fmt --all --check
       - name: Compile C3 app with read-only qualification diagnostics
         env:
           IOBEWI_OTA_QUALIFICATION_ID: ci-c3-probe
