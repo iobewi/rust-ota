@@ -29,6 +29,7 @@ def ota_campaign(bench_client, bench_run_dir, request, pytestconfig):
     for name in (
         "boot_metadata.py", "boot_transitions.py",
         "ota_meta.py", "diagnostic.py", "ota_http.py",
+        "refusal_assertions.py",
     ):
         source = Path(__file__).with_name(name).read_bytes()
         (directory / name).write_bytes(source)
