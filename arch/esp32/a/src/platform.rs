@@ -108,6 +108,14 @@ impl SystemBoot {
         self.snapshot_locked(&mut guard)
     }
 
+    /// Read-only qualification snapshot: running slot from the platform's
+    /// mapped image, plus both BOOT v2 raw entries read under one flash lock.
+    /// A BOOT record does not authenticate the image or prove OTM1 completion.
+    pub async fn observe(&self, flash: &SharedFlash) -> Result<(u8, [Raw; SECTOR_COUNT]), Error> {
+        let (running, records) = self.snapshot(flash).await?;
+        Ok((running.index(), records))
+    }
+
     /// Check the historical write target against the actual mapped image, then
     /// reserve the same target through the shared domain reservation mechanism.
     pub async fn reserve<'a>(&'a mut self, flash: &SharedFlash) -> Result<WriteGuard<'a>, Error> {
