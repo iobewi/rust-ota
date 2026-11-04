@@ -6,11 +6,13 @@ Cette recette est **écrite mais non qualifiée sur matériel**. L'existence du 
 `tests/ota_bench/test_staged_image.py` n'est exécutée que lorsque toutes ses conditions sont réunies.
 Elle **ne lance aucune activation**, ne provoque aucune coupure, ne modifie pas de grant et ne lève pas de quarantaine.
 
+Le banc et le firmware HTTPS doivent exposer la même MAC station : sans cette comparaison indépendante, pas de PASS de liaison physique.
+
 Le firmware doit être préparé avec `--features esp32c3,qualification-diagnostics`
 et la variable de build publique `IOBEWI_OTA_QUALIFICATION_ID` (identifiant distinct A/B).
 Une compilation avec ce diagnostic n'implique pas une preuve d'authenticité.
 `/ota/diagnostic` nécessite le Bearer de maintenance et fournit
-`build_id`, `mcu`, `running_slot`, les deux états `BOOT` v2;
+`build_id`, `mcu`, `station_mac`, `running_slot`, les deux états `BOOT` v2;
 `otm1_observed=false` et `image_authenticated=false` restent explicites.
 La route n'existe pas sans la feature de qualification.
 
