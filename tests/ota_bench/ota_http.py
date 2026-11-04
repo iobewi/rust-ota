@@ -51,7 +51,7 @@ class OtaHttp:
 
     def request(self, method: str, path: str, *, headers=None, body=b""):
         if method not in ("GET", "POST") or path not in (
-            "/health", "/ota/upload", "/ota/activate"
+            "/health", "/ota/upload", "/ota/activate", "/ota/diagnostic"
         ):
             raise OtaProtocolError("Unexpected OTA operation")
         conn = self._connection()
@@ -65,6 +65,12 @@ class OtaHttp:
 
     def health(self):
         return self.request("GET", "/health")
+
+    def diagnostic(self):
+        return self.request(
+            "GET", "/ota/diagnostic",
+            headers={"Authorization": "Bearer " + self.token},
+        )
 
     @staticmethod
     def validate_id(deployment_id: str):
