@@ -11,6 +11,7 @@ Le client du banc provient de rust_dev PR #4, SHA `54c69ecc2bbbbd95d682301a8017e
 - `tests/ota_bench/test_http_contract.py` : tests hôte des entêtes et identifiants/protocoles.
 - `tests/ota_bench/test_http_transport.py` : transport adversarial sans retry et bornage des réponses.
 - `tests/ota_bench/boot_metadata.py` et `test_boot_metadata.py` : décodeur BOOT v2 avec vecteurs indépendants, contrôles CRC/commit et injections de corruption.
+- `tests/ota_bench/boot_transitions.py` et `test_boot_transitions.py` : assertions hôte A→B→A, conservation du repli Valid, absence de probation résiduelle et rejet Aborted/Invalid.
 - `tests/ota_bench/test_boot_snapshot.py` : lecture de `otadata` via le banc avec offset explicite, vérification du format et collecte privée SHA-256.
 - `tests/ota_bench/test_upload_preparation.py` : tests hôte de la vérification locale des images/manifests, avant transport.
 - `tests/ota_bench/test_http_readonly.py` : GET /health et refus syntaxique d'activation. Ce dernier exige `OTA_ENABLE_SAFE_NEGATIVES=yes` car il émet un POST applicatif.
@@ -21,7 +22,7 @@ Installer le paquet `bench/python[pytest]` depuis le SHA exact de la PR #4. Avec
 
 ```sh
 # Tests locaux sans --bench, sans connexion physique :
-python -m pytest tests/ota_bench/test_http_contract.py tests/ota_bench/test_upload_preparation.py -q
+python -m pytest tests/ota_bench/test_http_contract.py tests/ota_bench/test_http_transport.py tests/ota_bench/test_upload_preparation.py tests/ota_bench/test_boot_metadata.py tests/ota_bench/test_boot_transitions.py -q
 
 # Collecte et skip des tests matériels (incluant précontrôle) :
 python -m pytest tests/ota_bench -q
@@ -43,6 +44,7 @@ Pour un contrôle HTTPS en lecture seule, renseigner `OTA_HTTPS_ORIGIN`, `OTA_CA
 | Hash candidat/manifeste local | oui, tests hôte | NON EXÉCUTÉ |
 | /health TLS | oui, sans identité OTA | NON EXÉCUTÉ |
 | BOOT v2: format et corruption | oui, tests hôte + capture flash opt-in | NON EXÉCUTÉ |
+| BOOT v2: transitions nominales/rollback | assertions hôte sur snapshots, sans identité runtime | NON EXÉCUTÉ |
 | Refus d'ID invalide | oui, POST explicitement opt-in | NON EXÉCUTÉ |
 | Upload signé et publication durable | non | NON EXÉCUTÉ |
 | Activation / probation / confirmation | non | NON EXÉCUTÉ |
