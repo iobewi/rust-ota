@@ -1,4 +1,6 @@
 //! Reference composition: one request owns one reservation and one write engine.
+#[cfg(feature = "qualification-diagnostics")]
+use alloc::format;
 use alloc::string::String;
 use embassy_executor::Spawner;
 use embassy_net::StackResources;
@@ -621,6 +623,98 @@ impl<S: MetadataStore> RequestHandlerService for Handler<'_, S> {
     }
 }
 
+/// Read-only diagnostics, built only for qualification images. It borrows the
+/// existing SystemBoot owner and reads the real boot mapping + BOOT v2 entries.
+/// Neither HTTP status nor a BOOT entry is proof of image authentication or OTM1.
+#[cfg(feature = "qualification-diagnostics")]
+struct Diagnostic<'a, S> {
+    state: &'a State<'a, S>,
+}
+
+#[cfg(feature = "qualification-diagnostics")]
+fn diagnostic_record(raw: &[u8; 32]) -> String {
+    use iobewi_firmware_boot::{Decoded, decode};
+    match decode(raw) {
+        Decoded::Blank => String::from("{\"kind\":\"Blank\"}"),
+        Decoded::Corrupt => String::from("{\"kind\":\"Corrupt\"}"),
+        Decoded::Ok(entry) => format!(
+            "{{\"kind\":\"Ok\",\"sequence\":{},\"state\":{}}}",
+            entry.seq, entry.state
+        ),
+    }
+}
+
+#[cfg(feature = "qualification-diagnostics")]
+impl<S: MetadataStore> RequestHandlerService for Diagnostic<'_, S> {
+    async fn call_request_handler_service<R: Read, W: ResponseWriter<Error = R::Error>>(
+        &self,
+        _state: &(),
+        (): (),
+        mut request: Request<'_, R>,
+        response_writer: W,
+    ) -> Result<ResponseSent, W::Error> {
+        let token = iobewi_http_server::auth::bearer_token(
+            request
+                .parts
+                .headers()
+                .get("authorization")
+                .and_then(|v| v.as_str().ok()),
+        );
+        if !iobewi_firmware_auth::maintenance::token_matches(
+            TOKEN.as_bytes(),
+            Some(token.as_bytes()),
+        ) {
+            return example_firmware_ota_system::maintenance_http::reject_unauthorized(
+                request,
+                response_writer,
+            )
+            .await;
+        }
+        // Preserve the normal one-request-per-connection lifecycle.
+        let body = {
+            let system = self.state.system.lock().await;
+            match system.observe(self.state.flash).await {
+                Ok((slot, entries)) => {
+                    let first = diagnostic_record(&entries[0]);
+                    let second = diagnostic_record(&entries[1]);
+                    let build = env!("IOBEWI_OTA_QUALIFICATION_ID");
+                    let mcu = if cfg!(feature = "esp32c3") {
+                        "esp32c3"
+                    } else {
+                        "esp32s3"
+                    };
+                    // Match the station MAC to independent bench identify().
+                    let mac = esp_hal::efuse::interface_mac_address(
+                        esp_hal::efuse::InterfaceMacAddress::Station,
+                    );
+                    let m = mac.as_bytes();
+                    let station_mac = format!(
+                        "{:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
+                        m[0], m[1], m[2], m[3], m[4], m[5]
+                    );
+                    format!(
+                        "{{\"schema\":2,\"build_id\":{:?},\"mcu\":{:?},\"station_mac\":{:?},\"running_slot\":{},\"boot_entries\":[{},{}],\"otm1_observed\":false,\"image_authenticated\":false}}",
+                        build, mcu, station_mac, slot, first, second
+                    )
+                }
+                Err(_) => {
+                    let connection = request.body_connection.finalize().await?;
+                    return (
+                        StatusCode::SERVICE_UNAVAILABLE,
+                        "boot observation unavailable",
+                    )
+                        .write_to(connection, response_writer)
+                        .await;
+                }
+            }
+        };
+        let connection = request.body_connection.finalize().await?;
+        (StatusCode::OK, body.as_str())
+            .write_to(connection, response_writer)
+            .await
+    }
+}
+
 pub async fn serve<S: MetadataStore>(
     flash: &SharedFlash,
     system: SystemBoot,
@@ -674,6 +768,11 @@ pub async fn serve<S: MetadataStore>(
                 activate: true,
             }),
         );
+    #[cfg(feature = "qualification-diagnostics")]
+    let router = router.route(
+        "/ota/diagnostic",
+        iobewi_http_server::routing::get_service(Diagnostic { state: &state }),
+    );
     #[cfg(feature = "supervised")]
     let router = router
         .route(
